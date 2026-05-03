@@ -3,73 +3,63 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<title>SignTalk</title>
+<title>SignTalk - Głos na Migowy</title>
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; }
 body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; background: #f8fafc; min-height: 100vh; padding: 20px; }
 .container { max-width: 500px; margin: 0 auto; }
-h1 { background: linear-gradient(135deg, #6366f1, #0ea5e9); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-size: 28px; margin-bottom: 8px; display: flex; align-items: center; gap: 10px; }
-h1 span { font-size: 32px; }
-.subtitle { color: #64748b; font-size: 14px; margin-bottom: 24px; }
-.card { background: white; border-radius: 20px; padding: 24px; box-shadow: 0 2px 12px rgba(0,0,0,0.08); margin-bottom: 16px; }
-.result { min-height: 200px; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-.result-icon { font-size: 80px; margin-bottom: 12px; animation: bounce 0.8s ease-in-out infinite alternate; }
-@keyframes bounce { from { transform: translateY(0); } to { transform: translateY(-16px); } }
-.result-letter { font-size: 64px; font-weight: 800; color: #6366f1; }
-.placeholder { color: #94a3b8; font-size: 16px; text-align: center; }
-.placeholder-icon { font-size: 64px; margin-bottom: 16px; opacity: 0.4; }
-input { width: 100%; padding: 18px 20px; font-size: 22px; border: 3px solid #e2e8f0; border-radius: 14px; text-transform: uppercase; text-align: center; letter-spacing: 4px; outline: none; transition: border-color 0.2s; }
+h1 { font-size: 28px; font-weight: 800; background: linear-gradient(135deg, #6366f1, #0ea5e9); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 4px; }
+.sub { color: #64748b; font-size: 14px; margin-bottom: 20px; }
+.card { background: white; border-radius: 20px; padding: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.08); margin-bottom: 16px; }
+input { width: 100%; padding: 20px; font-size: 24px; border: 3px solid #e2e8f0; border-radius: 14px; text-transform: uppercase; text-align: center; letter-spacing: 4px; outline: none; }
 input:focus { border-color: #6366f1; }
 input::placeholder { color: #94a3b8; text-transform: none; letter-spacing: 0; }
-.btn { width: 100%; padding: 18px; font-size: 17px; font-weight: 700; border: none; border-radius: 14px; cursor: pointer; margin-top: 12px; display: flex; align-items: center; justify-content: center; gap: 10px; transition: transform 0.1s; }
-.btn:active { transform: scale(0.97); }
-.btn-purple { background: linear-gradient(135deg, #6366f1, #4f46e5); color: white; }
-.btn-green { background: linear-gradient(135deg, #10b981, #059669); color: white; }
-.btn-blue { background: linear-gradient(135deg, #0ea5e9, #0284c7); color: white; }
-.btn-red { background: linear-gradient(135deg, #ef4444, #dc2626); color: white; }
-.error { background: #fef2f2; border: 2px solid #fecaca; border-radius: 12px; padding: 14px; color: #dc2626; font-size: 14px; margin-top: 12px; display: none; }
-.error.show { display: block; }
-.success { background: #f0fdf4; border: 2px solid #bbf7d0; border-radius: 12px; padding: 14px; color: #16a34a; font-size: 14px; margin-top: 12px; display: none; }
-.success.show { display: block; }
-.langs { display: flex; gap: 8px; margin-bottom: 16px; }
-.lang { flex: 1; padding: 12px; background: white; border: 2px solid #e2e8f0; border-radius: 12px; font-size: 13px; font-weight: 600; cursor: pointer; text-align: center; }
+.row { display: flex; gap: 8px; margin-bottom: 16px; }
+.lang { flex: 1; padding: 14px; background: white; border: 2px solid #e2e8f0; border-radius: 12px; font-size: 14px; font-weight: 600; cursor: pointer; text-align: center; }
 .lang.active { background: #6366f1; border-color: #6366f1; color: white; }
-.speed { background: white; border-radius: 14px; padding: 16px; margin-top: 12px; }
+.result { min-height: 180px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
+.result-icon { font-size: 72px; animation: bounce 0.7s ease-in-out infinite alternate; }
+@keyframes bounce { from { transform: translateY(0); } to { transform: translateY(-14px); } }
+.result-letter { font-size: 56px; font-weight: 800; color: #6366f1; margin-top: 8px; }
+.placeholder { color: #94a3b8; font-size: 15px; }
+.btn { width: 100%; padding: 18px; font-size: 16px; font-weight: 700; border: none; border-radius: 14px; cursor: pointer; margin-top: 10px; display: flex; align-items: center; justify-content: center; gap: 8px; }
+.btn-purple { background: linear-gradient(135deg, #6366f1, #4f46e5); color: white; }
+.btn-green { background: #10b981; color: white; }
+.btn-blue { background: #0ea5e9; color: white; }
+.btn-red { background: #ef4444; color: white; }
+.btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.msg { padding: 12px; border-radius: 10px; font-size: 14px; margin-top: 10px; display: none; text-align: center; }
+.msg-error { background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; display: block; }
+.msg-ok { background: #f0fdf4; color: #16a34a; border: 1px solid #bbf7d0; display: block; }
+.speed { background: white; border-radius: 14px; padding: 16px; margin-top: 10px; }
 .speed-label { font-size: 13px; color: #64748b; margin-bottom: 10px; display: flex; justify-content: space-between; }
-.speed input { padding: 0; border: none; height: 8px; background: #e2e8f0; border-radius: 4px; -webkit-appearance: none; }
-.speed input::-webkit-slider-thumb { -webkit-appearance: none; width: 24px; height: 24px; background: linear-gradient(135deg, #6366f1, #0ea5e9); border-radius: 50%; cursor: pointer; }
-.status { font-size: 12px; color: #94a3b8; text-align: center; margin-top: 8px; }
+.speed input { padding: 0; border: none; height: 8px; background: #e2e8f0; border-radius: 4px; -webkit-appearance: none; width: 100%; }
+.speed input::-webkit-slider-thumb { -webkit-appearance: none; width: 22px; height: 22px; background: linear-gradient(135deg, #6366f1, #0ea5e9); border-radius: 50%; cursor: pointer; }
 </style>
 </head>
 <body>
 <div class="container">
-<h1><span>✋</span> SignTalk</h1>
-<p class="subtitle">Zamień głos na znaki Migowe</p>
+<h1>✋ SignTalk</h1>
+<p class="sub">Zamień tekst na znaki Migowe</p>
 
 <div class="card">
-<div class="langs">
-<div class="lang active" onclick="setLang('pl-PL', this)">🇵🇱 Polski</div>
-<div class="lang" onclick="setLang('en-US', this)">🇺🇸 English</div>
-<div class="lang" onclick="setLang('de-DE', this)">🇩🇪 Deutsch</div>
+<div class="row">
+<div class="lang active" id="langPL" onclick="setLang('pl-PL')">🇵🇱 Polski</div>
+<div class="lang" id="langEN" onclick="setLang('en-US')">🇺🇸 English</div>
+<div class="lang" id="langDE" onclick="setLang('de-DE')">🇩🇪 Deutsch</div>
 </div>
-<input type="text" id="wordInput" placeholder="Wpisz słowo..." maxlength="20">
-<div class="error" id="errorBox"></div>
-<div class="success" id="successBox"></div>
-<div class="status" id="statusText">Ładowanie systemu głosowego...</div>
+<input type="text" id="wordInput" placeholder="Wpisz tutaj..." maxlength="20">
+<div id="msgBox"></div>
 </div>
 
 <div class="card">
 <div class="result" id="result">
-<div class="placeholder">
-<div class="placeholder-icon">👋</div>
-Wpisz słowo i kliknij przycisk
-</div>
+<p class="placeholder">Wpisz słowo powyżej<br>i kliknij przycisk</p>
 </div>
 </div>
 
 <button class="btn btn-purple" onclick="showSigns()">✋ Pokaż znaki Migowe</button>
-<button class="btn btn-green" onclick="speakText()">🔊 Posłuchaj wymowy</button>
+<button class="btn btn-green" id="speakBtn" onclick="speakText()">🔊 Przeczytaj tekst</button>
 <button class="btn btn-blue" id="micBtn" onclick="toggleMic()">🎤 Nagraj głos</button>
 
 <div class="speed">
@@ -77,113 +67,98 @@ Wpisz słowo i kliknij przycisk
 <span>Prędkość</span>
 <span id="speedVal">0.8s</span>
 </div>
-<input type="range" id="speedSlider" min="300" max="1500" value="800" oninput="updateSpeed()">
+<input type="range" id="speedSlider" min="300" max="1200" value="800" oninput="updateSpeed()">
 </div>
 </div>
 
 <script>
-// Signs
 var SIGNS = {A:'✋',B:'👆',C:'🤟',D:'👇',E:'🤚',F:'✌️',G:'👌',H:'🤙',I:'☝️',J:'☝️',K:'🤲',L:'🖐️',M:'✊',N:'🤌',O:'👌',P:'🤜',Q:'🤏',R:'🤙',S:'✋',T:'🤚',U:'🖐️',V:'✌️',W:'🤞',X:'🤞',Y:'✋',Z:'🤟'};
 var lang = 'pl-PL';
 var speed = 800;
-var voices = [];
-var recognition = null;
 var isListening = false;
 var resultEl = document.getElementById('result');
 var wordInput = document.getElementById('wordInput');
-var errorBox = document.getElementById('errorBox');
-var successBox = document.getElementById('successBox');
-var statusText = document.getElementById('statusText');
+var msgBox = document.getElementById('msgBox');
+var speakBtn = document.getElementById('speakBtn');
 var micBtn = document.getElementById('micBtn');
+var recognition = null;
 
-// Load voices
-function loadVoices() {
-  try {
-    voices = speechSynthesis.getVoices();
-    if (voices.length > 0) {
-      statusText.textContent = '✓ System głosowy gotowy';
-      statusText.style.color = '#16a34a';
-    }
-  } catch(e) {
-    statusText.textContent = 'Błąd ładowania głosów';
+// Text-to-Speech
+function speakText() {
+  var text = wordInput.value.trim();
+  if (!text) {
+    showMsg('Wpisz jakieś słowo!', 'error');
+    return;
   }
+  
+  // Stop any current speech
+  try { speechSynthesis.cancel(); } catch(e) {}
+  
+  // Small delay to ensure cancel takes effect
+  setTimeout(function() {
+    var utter = new SpeechSynthesisUtterance(text);
+    utter.lang = lang;
+    utter.rate = 0.9;
+    utter.pitch = 1;
+    
+    // Get voices
+    var voices = [];
+    try { voices = speechSynthesis.getVoices(); } catch(e) {}
+    if (voices.length > 0) {
+      var prefix = lang.split('-')[0];
+      for (var i = 0; i < voices.length; i++) {
+        if (voices[i].lang.startsWith(prefix)) {
+          utter.voice = voices[i];
+          break;
+        }
+      }
+    }
+    
+    utter.onstart = function() {
+      showMsg('🔊 Czytam...', 'ok');
+      speakBtn.disabled = true;
+    };
+    utter.onend = function() {
+      speakBtn.disabled = false;
+      hideMsg();
+    };
+    utter.onerror = function(e) {
+      speakBtn.disabled = false;
+      if (e.error !== 'canceled') {
+        showMsg('Błąd: ' + e.error, 'error');
+      }
+      hideMsg();
+    };
+    
+    try {
+      speechSynthesis.speak(utter);
+    } catch(e) {
+      showMsg('Błąd: ' + e.message, 'error');
+      speakBtn.disabled = false;
+    }
+  }, 100);
 }
 
-// Try to load voices
+// Force load voices
+function loadVoices() {
+  try {
+    var voices = speechSynthesis.getVoices();
+    if (voices.length > 0) {
+      showMsg('✓ Głos gotowy', 'ok');
+      setTimeout(hideMsg, 2000);
+    }
+  } catch(e) {}
+}
+
 try {
   loadVoices();
   if (speechSynthesis.onvoiceschanged !== undefined) {
     speechSynthesis.onvoiceschanged = loadVoices;
   }
-  // Force load on iOS
-  setTimeout(loadVoices, 500);
-  setTimeout(loadVoices, 1000);
-} catch(e) {
-  statusText.textContent = 'System głosowy niedostępny';
-}
-
-// Speak function - ROBUST
-function speakText() {
-  var text = wordInput.value.trim();
-  if (!text) {
-    showError('Wpisz jakieś słowo!');
-    return;
-  }
-  
-  hideError();
-  hideSuccess();
-  
-  // Stop any current speech
-  try {
-    speechSynthesis.cancel();
-  } catch(e) {}
-  
-  // Create utterance
-  var utter = new SpeechSynthesisUtterance(text);
-  utter.lang = lang;
-  utter.rate = 0.85;
-  utter.pitch = 1.0;
-  utter.volume = 1.0;
-  
-  // Try to find a voice
-  try {
-    var allVoices = speechSynthesis.getVoices();
-    if (allVoices.length > 0) {
-      var prefix = lang.split('-')[0];
-      for (var i = 0; i < allVoices.length; i++) {
-        if (allVoices[i].lang.startsWith(prefix)) {
-          utter.voice = allVoices[i];
-          break;
-        }
-      }
-    }
-  } catch(e) {}
-  
-  // Events
-  utter.onstart = function() {
-    showSuccess('🔊 Mówię...');
-  };
-  utter.onend = function() {
-    hideSuccess();
-  };
-  utter.onerror = function(e) {
-    // 'interrupted' is OK, not a real error
-    if (e.error !== 'interrupted') {
-      showError('Błąd: ' + e.error);
-    }
-    hideSuccess();
-  };
-  
-  // Speak
-  try {
-    speechSynthesis.speak(utter);
-  } catch(e) {
-    showError('Błąd: ' + e.message);
-  }
-}
-
-// Also expose speakText globally for debugging
-window.speakText = speakText;
+  setTimeout(loadVoices, 300);
+  setTimeout(loadVoices, 800);
+  setTimeout(loadVoices, 1500);
+} catch(e) {}
 
 // Speech Recognition
 try {
@@ -191,55 +166,82 @@ try {
   if (SR) {
     recognition = new SR();
     recognition.lang = lang;
-    recognition.continuous = false;
-    recognition.interimResults = false;
-    
     recognition.onresult = function(e) {
       wordInput.value = e.results[0][0].transcript.toUpperCase();
       showSigns();
     };
     recognition.onerror = function(e) {
       if (e.error !== 'no-speech') {
-        showError('Błąd: ' + e.error);
+        showMsg('Błąd mikrofonu: ' + e.error, 'error');
       }
-      stopListening();
+      stopMic();
     };
-    recognition.onend = stopListening;
+    recognition.onend = stopMic;
   }
 } catch(e) {}
 
-function showError(msg) {
-  errorBox.textContent = msg;
-  errorBox.classList.add('show');
+function toggleMic() {
+  if (!recognition) {
+    showMsg('Mikrofon niedostępny w tej przeglądarce', 'error');
+    return;
+  }
+  if (isListening) {
+    stopMic();
+  } else {
+    hideMsg();
+    isListening = true;
+    micBtn.innerHTML = '⏹️ Zatrzymaj';
+    micBtn.className = 'btn btn-red';
+    try {
+      recognition.start();
+      showMsg('🎤 Słucham... mów!', 'ok');
+    } catch(e) {
+      showMsg('Nie można uruchomić mikrofonu', 'error');
+      stopMic();
+    }
+  }
 }
-function hideError() {
-  errorBox.classList.remove('show');
+
+function stopMic() {
+  isListening = false;
+  micBtn.innerHTML = '🎤 Nagraj głos';
+  micBtn.className = 'btn btn-blue';
+  try { recognition.stop(); } catch(e) {}
+  setTimeout(hideMsg, 1000);
 }
-function showSuccess(msg) {
-  successBox.textContent = msg;
-  successBox.classList.add('show');
-}
-function hideSuccess() {
-  successBox.classList.remove('show');
-}
-function setLang(l, btn) {
+
+function setLang(l) {
   lang = l;
-  document.querySelectorAll('.lang').forEach(function(el) { el.classList.remove('active'); });
-  if (btn) btn.classList.add('active');
-  if (recognition) recognition.lang = lang;
+  document.getElementById('langPL').className = 'lang' + (l === 'pl-PL' ? ' active' : '');
+  document.getElementById('langEN').className = 'lang' + (l === 'en-US' ? ' active' : '');
+  document.getElementById('langDE').className = 'lang' + (l === 'de-DE' ? ' active' : '');
+  if (recognition) recognition.lang = l;
 }
+
 function updateSpeed() {
-  speed = parseInt(speedSlider.value);
-  speedVal.textContent = (speed/1000).toFixed(1) + 's';
+  speed = parseInt(document.getElementById('speedSlider').value);
+  document.getElementById('speedVal').textContent = (speed/1000).toFixed(1) + 's';
 }
+
+function showMsg(text, type) {
+  msgBox.textContent = text;
+  msgBox.className = 'msg msg-' + type;
+}
+
+function hideMsg() {
+  setTimeout(function() {
+    msgBox.className = 'msg';
+    msgBox.textContent = '';
+  }, 2000);
+}
+
 function showSigns() {
   var text = wordInput.value.trim().toUpperCase().replace(/[^A-ZĄĘŁŃÓŚŹŻ]/g, '');
   if (!text) {
-    showError('Wpisz jakieś słowo!');
+    showMsg('Wpisz jakieś słowo!', 'error');
     return;
   }
-  hideError();
-  hideSuccess();
+  hideMsg();
   var chars = text.split('');
   resultEl.innerHTML = '';
   chars.forEach(function(c, i) {
@@ -248,34 +250,8 @@ function showSigns() {
     }, i * speed);
   });
 }
-function toggleMic() {
-  if (!recognition) {
-    showError('Mikrofon niedostępny w tej przeglądarce');
-    return;
-  }
-  if (isListening) {
-    stopListening();
-  } else {
-    hideError();
-    hideSuccess();
-    isListening = true;
-    micBtn.innerHTML = '⏹️ Zatrzymaj';
-    micBtn.className = 'btn btn-red';
-    try {
-      recognition.start();
-      showSuccess('🎤 Słucham... mów!');
-    } catch(e) {
-      showError('Nie można uruchomić mikrofonu');
-      stopListening();
-    }
-  }
-}
-function stopListening() {
-  isListening = false;
-  micBtn.innerHTML = '🎤 Nagraj głos';
-  micBtn.className = 'btn btn-blue';
-  try { recognition.stop(); } catch(e) {}
-}
+
+// Enter key
 wordInput.addEventListener('keypress', function(e) {
   if (e.key === 'Enter') showSigns();
 });
