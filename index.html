@@ -456,7 +456,19 @@
         @media (min-height: 700px) {
             .display { padding: 20px 20px; }
         }
-    </style>
+    
+        .submit-btn {
+            width: 100%;
+            padding: 14px;
+            margin-top: 10px;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            border: none;
+            border-radius: 14px;
+            color: white;
+            font-size: 1em;
+            font-weight: bold;
+            cursor: pointer;
+        }</style>
 </head>
 <body>
     <div class="bg-gradient"></div>
@@ -503,7 +515,8 @@
     </div>
     
     <div class="text-section">
-        <input type="text" class="text-input" id="textInput" placeholder="lub wpisz tekst tutaj..." maxlength="25">
+        <input type="text" class="text-input" id="textInput" placeholder="Wpisz tutaj..." maxlength="25" onkeydown="if(event.key==='Enter')startAnimation(this.value)">
+        <button class="submit-btn" onclick="startAnimation(document.getElementById('textInput').value)">✋ POKAŻ ZNAKI</button>
     </div>
     
     <div class="speed-section">
