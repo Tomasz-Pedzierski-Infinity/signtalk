@@ -351,7 +351,7 @@
             } else {
                 infoBox.textContent = 'ℹ️ Ta przeglądarka nie obsługuje rozpoznawania mowy. Użyj Chrome lub Edge.';
             }
-            btnMic.style.display = 'none';
+            // Don't hide - show error on click instead
         } else {
             recognition = new SR();
             recognition.lang = currentLang;
