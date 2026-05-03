@@ -56,7 +56,7 @@ input::placeholder { color: #94a3b8; text-transform: none; letter-spacing: 0; }
 <input type="text" id="wordInput" placeholder="Wpisz słowo..." maxlength="20">
 <div class="error" id="errorBox"></div>
 <div class="success" id="successBox"></div>
-<div class="status" id="statusText">System głosowy: ładowanie...</div>
+<div class="status" id="statusText">Ładowanie systemu głosowego...</div>
 </div>
 
 <div class="card">
@@ -70,7 +70,7 @@ Wpisz słowo i kliknij przycisk
 
 <button class="btn btn-purple" onclick="showSigns()">✋ Pokaż znaki Migowe</button>
 <button class="btn btn-green" onclick="speakText()">🔊 Posłuchaj wymowy</button>
-<button class="btn btn-blue" onclick="startListening()">🎤 Nagraj głos</button>
+<button class="btn btn-blue" id="micBtn" onclick="toggleMic()">🎤 Nagraj głos</button>
 
 <div class="speed">
 <div class="speed-label">
@@ -82,61 +82,58 @@ Wpisz słowo i kliknij przycisk
 </div>
 
 <script>
-// Signs dictionary
+// Signs
 var SIGNS = {A:'✋',B:'👆',C:'🤟',D:'👇',E:'🤚',F:'✌️',G:'👌',H:'🤙',I:'☝️',J:'☝️',K:'🤲',L:'🖐️',M:'✊',N:'🤌',O:'👌',P:'🤜',Q:'🤏',R:'🤙',S:'✋',T:'🤚',U:'🖐️',V:'✌️',W:'🤞',X:'🤞',Y:'✋',Z:'🤟'};
-
-// State
 var lang = 'pl-PL';
 var speed = 800;
-var voicesLoaded = false;
+var voices = [];
 var recognition = null;
 var isListening = false;
-
-// DOM
 var resultEl = document.getElementById('result');
 var wordInput = document.getElementById('wordInput');
 var errorBox = document.getElementById('errorBox');
 var successBox = document.getElementById('successBox');
 var statusText = document.getElementById('statusText');
-var speedSlider = document.getElementById('speedSlider');
-var speedVal = document.getElementById('speedVal');
+var micBtn = document.getElementById('micBtn');
 
 // Load voices
 function loadVoices() {
   try {
-    var voiceList = speechSynthesis.getVoices();
-    if (voiceList.length > 0) {
-      voicesLoaded = true;
-      statusText.textContent = 'System głosowy: gotowy ✓';
+    voices = speechSynthesis.getVoices();
+    if (voices.length > 0) {
+      statusText.textContent = '✓ System głosowy gotowy';
       statusText.style.color = '#16a34a';
-    } else {
-      statusText.textContent = 'System głosowy: ładowanie...';
     }
   } catch(e) {
-    statusText.textContent = 'System głosowy: błąd';
+    statusText.textContent = 'Błąd ładowania głosów';
   }
 }
 
-// Voice loading events
+// Try to load voices
 try {
-  speechSynthesis.onvoiceschanged = loadVoices;
   loadVoices();
+  if (speechSynthesis.onvoiceschanged !== undefined) {
+    speechSynthesis.onvoiceschanged = loadVoices;
+  }
+  // Force load on iOS
+  setTimeout(loadVoices, 500);
+  setTimeout(loadVoices, 1000);
 } catch(e) {
-  statusText.textContent = 'System głosowy: niedostępny';
+  statusText.textContent = 'System głosowy niedostępny';
 }
 
-// TTS - PROPER IMPLEMENTATION
+// Speak function - ROBUST
 function speakText() {
   var text = wordInput.value.trim();
   if (!text) {
-    showError('Najpierw wpisz słowo!');
+    showError('Wpisz jakieś słowo!');
     return;
   }
   
   hideError();
   hideSuccess();
   
-  // Cancel any ongoing speech
+  // Stop any current speech
   try {
     speechSynthesis.cancel();
   } catch(e) {}
@@ -144,34 +141,36 @@ function speakText() {
   // Create utterance
   var utter = new SpeechSynthesisUtterance(text);
   utter.lang = lang;
-  utter.rate = 0.9;
-  utter.pitch = 1;
-  utter.volume = 1;
+  utter.rate = 0.85;
+  utter.pitch = 1.0;
+  utter.volume = 1.0;
   
-  // Get voices
-  var voiceList = speechSynthesis.getVoices();
-  if (voiceList.length > 0) {
-    // Find matching voice
-    var langPrefix = lang.split('-')[0];
-    for (var i = 0; i < voiceList.length; i++) {
-      if (voiceList[i].lang.startsWith(langPrefix)) {
-        utter.voice = voiceList[i];
-        break;
+  // Try to find a voice
+  try {
+    var allVoices = speechSynthesis.getVoices();
+    if (allVoices.length > 0) {
+      var prefix = lang.split('-')[0];
+      for (var i = 0; i < allVoices.length; i++) {
+        if (allVoices[i].lang.startsWith(prefix)) {
+          utter.voice = allVoices[i];
+          break;
+        }
       }
     }
-  }
+  } catch(e) {}
   
   // Events
   utter.onstart = function() {
-    showSuccess('🔊 Odtwarzanie...');
+    showSuccess('🔊 Mówię...');
   };
-  
   utter.onend = function() {
     hideSuccess();
   };
-  
   utter.onerror = function(e) {
-    showError('Błąd odtwarzania: ' + e.error);
+    // 'interrupted' is OK, not a real error
+    if (e.error !== 'interrupted') {
+      showError('Błąd: ' + e.error);
+    }
     hideSuccess();
   };
   
@@ -182,6 +181,9 @@ function speakText() {
     showError('Błąd: ' + e.message);
   }
 }
+
+// Also expose speakText globally for debugging
+window.speakText = speakText;
 
 // Speech Recognition
 try {
@@ -196,50 +198,40 @@ try {
       wordInput.value = e.results[0][0].transcript.toUpperCase();
       showSigns();
     };
-    
     recognition.onerror = function(e) {
       if (e.error !== 'no-speech') {
-        showError('Błąd mikrofonu: ' + e.error);
+        showError('Błąd: ' + e.error);
       }
       stopListening();
     };
-    
     recognition.onend = stopListening;
   }
 } catch(e) {}
 
-// Functions
 function showError(msg) {
   errorBox.textContent = msg;
   errorBox.classList.add('show');
-  successBox.classList.remove('show');
 }
-
 function hideError() {
   errorBox.classList.remove('show');
 }
-
 function showSuccess(msg) {
   successBox.textContent = msg;
   successBox.classList.add('show');
 }
-
 function hideSuccess() {
   successBox.classList.remove('show');
 }
-
 function setLang(l, btn) {
   lang = l;
   document.querySelectorAll('.lang').forEach(function(el) { el.classList.remove('active'); });
   if (btn) btn.classList.add('active');
   if (recognition) recognition.lang = lang;
 }
-
 function updateSpeed() {
   speed = parseInt(speedSlider.value);
   speedVal.textContent = (speed/1000).toFixed(1) + 's';
 }
-
 function showSigns() {
   var text = wordInput.value.trim().toUpperCase().replace(/[^A-ZĄĘŁŃÓŚŹŻ]/g, '');
   if (!text) {
@@ -256,51 +248,37 @@ function showSigns() {
     }, i * speed);
   });
 }
-
-function startListening() {
+function toggleMic() {
   if (!recognition) {
     showError('Mikrofon niedostępny w tej przeglądarce');
     return;
   }
   if (isListening) {
     stopListening();
-    return;
-  }
-  hideError();
-  hideSuccess();
-  isListening = true;
-  
-  var btns = document.querySelectorAll('.btn');
-  btns[2].innerHTML = '⏹️ Zatrzymaj';
-  btns[2].className = 'btn btn-red';
-  
-  try {
-    recognition.start();
-    showSuccess('🎤 Nasłuchuję... mów!');
-  } catch(e) {
-    showError('Nie można uruchomić mikrofonu');
-    stopListening();
+  } else {
+    hideError();
+    hideSuccess();
+    isListening = true;
+    micBtn.innerHTML = '⏹️ Zatrzymaj';
+    micBtn.className = 'btn btn-red';
+    try {
+      recognition.start();
+      showSuccess('🎤 Słucham... mów!');
+    } catch(e) {
+      showError('Nie można uruchomić mikrofonu');
+      stopListening();
+    }
   }
 }
-
 function stopListening() {
   isListening = false;
-  var btns = document.querySelectorAll('.btn');
-  btns[2].innerHTML = '🎤 Nagraj głos';
-  btns[2].className = 'btn btn-blue';
+  micBtn.innerHTML = '🎤 Nagraj głos';
+  micBtn.className = 'btn btn-blue';
   try { recognition.stop(); } catch(e) {}
-  hideSuccess();
 }
-
-// Enter key
 wordInput.addEventListener('keypress', function(e) {
   if (e.key === 'Enter') showSigns();
 });
-
-// Pre-load voices
-setTimeout(function() {
-  loadVoices();
-}, 1000);
 </script>
 </body>
 </html>
