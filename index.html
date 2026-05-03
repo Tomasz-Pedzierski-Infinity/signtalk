@@ -3,46 +3,354 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>MigAvatar - E-Tłumacz Migowego</title>
+<title>MigAvatar 3D - E-Tłumacz Migowego</title>
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; }
-body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; background: #1a1a2e; color: white; min-height: 100vh; overflow: hidden; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; background: linear-gradient(135deg, #0f0f1a 0%, #1a1a2e 50%, #2d1f3d 100%); color: white; min-height: 100vh; overflow: hidden; }
 .container { max-width: 500px; margin: 0 auto; height: 100vh; display: flex; flex-direction: column; }
-header { padding: 12px 20px; background: linear-gradient(135deg, #6366f1, #8b5cf6); text-align: center; }
-h1 { font-size: 20px; font-weight: 800; }
+header { padding: 12px 20px; background: linear-gradient(135deg, #6366f1, #8b5cf6); text-align: center; box-shadow: 0 4px 20px rgba(99, 102, 241, 0.4); }
+h1 { font-size: 20px; font-weight: 800; text-shadow: 0 2px 10px rgba(0,0,0,0.3); }
 .sub { font-size: 11px; opacity: 0.9; }
-.avatar-container { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; background: linear-gradient(180deg, #1a1a2e 0%, #2d2d4a 100%); }
-.avatar-area { position: relative; width: 200px; height: 280px; }
-.speech-bubble { position: absolute; top: 0; left: 50%; transform: translateX(-50%); background: white; color: #1a1a2e; padding: 10px 18px; border-radius: 18px; font-size: 15px; font-weight: 600; max-width: 85%; text-align: center; opacity: 0; transition: opacity 0.3s; z-index: 10; }
-.speech-bubble.show { opacity: 1; }
-.speech-bubble::after { content: ''; position: absolute; bottom: -8px; left: 50%; transform: translateX(-50%); border: 8px solid transparent; border-top-color: white; border-bottom: 0; }
-.person { width: 100%; height: 100%; }
-.chat-area { background: #16162a; padding: 12px; border-radius: 18px 18px 0 0; }
+
+.avatar-container { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; perspective: 800px; overflow: hidden; }
+.avatar-area { position: relative; transform-style: preserve-3d; animation: float 3s ease-in-out infinite; }
+@keyframes float {
+  0%, 100% { transform: translateY(0) rotateX(0deg); }
+  50% { transform: translateY(-8px) rotateX(2deg); }
+}
+
+/* 3D AVATAR */
+.person-3d {
+  position: relative;
+  width: 160px;
+  height: 320px;
+  transform-style: preserve-3d;
+}
+
+/* HEAD - 3D sphere */
+.head-3d {
+  position: absolute;
+  width: 70px;
+  height: 70px;
+  left: 50%;
+  top: 0;
+  transform: translateX(-50%);
+  background: linear-gradient(135deg, #a78bfa 0%, #6366f1 50%, #4f46e5 100%);
+  border-radius: 50%;
+  box-shadow: 
+    inset -10px -10px 20px rgba(0,0,0,0.3),
+    inset 10px 10px 20px rgba(255,255,255,0.1),
+    0 5px 30px rgba(99, 102, 241, 0.6);
+}
+.head-3d::before { /* Hair highlight */
+  position: absolute;
+  width: 30px;
+  height: 20px;
+  background: rgba(255,255,255,0.15);
+  border-radius: 50%;
+  top: 10px;
+  left: 15px;
+}
+.eyes-3d {
+  position: absolute;
+  width: 40px;
+  height: 15px;
+  top: 28px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  justify-content: space-between;
+}
+.eye-3d {
+  width: 12px;
+  height: 12px;
+  background: white;
+  border-radius: 50%;
+  box-shadow: inset 0 0 5px rgba(0,0,0,0.2);
+}
+.eye-3d::after {
+  content: '';
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  background: #1a1a2e;
+  border-radius: 50%;
+  top: 3px;
+  left: 3px;
+}
+.mouth-3d {
+  position: absolute;
+  width: 20px;
+  height: 10px;
+  border: 3px solid white;
+  border-top: none;
+  border-radius: 0 0 20px 20px;
+  top: 48px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+/* NECK */
+.neck-3d {
+  position: absolute;
+  width: 30px;
+  height: 20px;
+  left: 50%;
+  top: 65px;
+  transform: translateX(-50%);
+  background: linear-gradient(90deg, #a78bfa, #6366f1);
+  border-radius: 5px;
+}
+
+/* BODY - torso */
+.torso-3d {
+  position: absolute;
+  width: 80px;
+  height: 110px;
+  left: 50%;
+  top: 80px;
+  transform: translateX(-50%);
+  background: linear-gradient(180deg, #6366f1 0%, #4f46e5 100%);
+  border-radius: 20px 20px 10px 10px;
+  box-shadow: 
+    inset -15px 0 30px rgba(0,0,0,0.2),
+    inset 15px 0 30px rgba(255,255,255,0.05),
+    0 10px 40px rgba(99, 102, 241, 0.4);
+}
+.torso-3d::before { /* Shirt highlight */
+  content: '';
+  position: absolute;
+  width: 20px;
+  height: 60px;
+  background: rgba(255,255,255,0.08);
+  border-radius: 10px;
+  top: 20px;
+  left: 15px;
+}
+
+/* ARMS */
+.arm-3d {
+  position: absolute;
+  width: 25px;
+  height: 100px;
+  top: 85px;
+  background: linear-gradient(180deg, #6366f1, #4f46e5);
+  border-radius: 15px;
+  transform-origin: top center;
+  box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+}
+.arm-left-3d {
+  left: 15px;
+  animation: armWaveLeft 2s ease-in-out infinite;
+}
+.arm-right-3d {
+  right: 15px;
+  animation: armWaveRight 2s ease-in-out infinite;
+}
+@keyframes armWaveLeft {
+  0%, 100% { transform: rotate(0deg); }
+  30% { transform: rotate(-20deg); }
+}
+@keyframes armWaveRight {
+  0%, 100% { transform: rotate(0deg); }
+  30% { transform: rotate(20deg); }
+}
+
+/* HANDS - spheres */
+.hand-3d {
+  position: absolute;
+  width: 28px;
+  height: 28px;
+  background: linear-gradient(135deg, #c4b5fd 0%, #a78bfa 50%, #8b5cf6 100%);
+  border-radius: 50%;
+  box-shadow: 
+    inset -5px -5px 10px rgba(0,0,0,0.2),
+    inset 5px 5px 10px rgba(255,255,255,0.2),
+    0 5px 15px rgba(139, 92, 246, 0.5);
+}
+.hand-left-3d {
+  left: 16px;
+  top: 175px;
+  animation: handMoveLeft 2s ease-in-out infinite;
+}
+.hand-right-3d {
+  right: 16px;
+  top: 175px;
+  animation: handMoveRight 2s ease-in-out infinite;
+}
+@keyframes handMoveLeft {
+  0%, 100% { transform: translate(0, 0); }
+  30% { transform: translate(-10px, -15px); }
+}
+@keyframes handMoveRight {
+  0%, 100% { transform: translate(0, 0); }
+  30% { transform: translate(10px, -15px); }
+}
+
+/* FINGERS - individual fingers */
+.finger {
+  position: absolute;
+  background: linear-gradient(180deg, #c4b5fd, #a78bfa);
+  border-radius: 5px 5px 3px 3px;
+}
+.hand-3d .finger:nth-child(1) { width: 6px; height: 16px; top: -12px; left: 3px; transform: rotate(-10deg); }
+.hand-3d .finger:nth-child(2) { width: 6px; height: 18px; top: -14px; left: 11px; }
+.hand-3d .finger:nth-child(3) { width: 6px; height: 16px; top: -12px; left: 19px; transform: rotate(10deg); }
+
+/* HIPS */
+.hips-3d {
+  position: absolute;
+  width: 70px;
+  height: 35px;
+  left: 50%;
+  top: 185px;
+  transform: translateX(-50%);
+  background: linear-gradient(180deg, #4f46e5, #4338ca);
+  border-radius: 10px 10px 15px 15px;
+}
+
+/* LEGS */
+.leg-3d {
+  position: absolute;
+  width: 28px;
+  height: 95px;
+  top: 215px;
+  background: linear-gradient(180deg, #4338ca, #3730a3);
+  border-radius: 10px 10px 8px 8px;
+}
+.leg-left-3d { left: 42px; }
+.leg-right-3d { right: 42px; }
+
+/* FEET */
+.foot-3d {
+  position: absolute;
+  width: 35px;
+  height: 18px;
+  top: 305px;
+  background: linear-gradient(180deg, #3730a3, #312e81);
+  border-radius: 8px 8px 10px 10px;
+}
+.foot-left-3d { left: 38px; }
+.foot-right-3d { right: 38px; }
+
+/* SHADOW */
+.shadow-3d {
+  position: absolute;
+  width: 100px;
+  height: 20px;
+  bottom: -25px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: radial-gradient(ellipse, rgba(0,0,0,0.4) 0%, transparent 70%);
+  animation: shadowPulse 3s ease-in-out infinite;
+}
+@keyframes shadowPulse {
+  0%, 100% { transform: translateX(-50%) scale(1); opacity: 0.4; }
+  50% { transform: translateX(-50%) scale(0.9); opacity: 0.3; }
+}
+
+/* SPEECH BUBBLE */
+.bubble-3d {
+  position: absolute;
+  top: -60px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: white;
+  color: #1a1a2e;
+  padding: 12px 20px;
+  border-radius: 20px;
+  font-size: 16px;
+  font-weight: 700;
+  max-width: 200px;
+  text-align: center;
+  opacity: 0;
+  transition: all 0.4s ease;
+  box-shadow: 0 5px 30px rgba(0,0,0,0.3);
+  z-index: 100;
+}
+.bubble-3d.show {
+  opacity: 1;
+  top: -50px;
+}
+.bubble-3d::after {
+  content: '';
+  position: absolute;
+  bottom: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 12px solid transparent;
+  border-top-color: white;
+  border-bottom: 0;
+}
+
+/* CHAT AREA */
+.chat-area {
+  background: linear-gradient(180deg, rgba(22,22,42,0.95), rgba(26,26,46,0.98));
+  padding: 12px;
+  border-radius: 20px 20px 0 0;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(99, 102, 241, 0.2);
+}
 .input-row { display: flex; gap: 8px; margin-bottom: 8px; }
-input { flex: 1; padding: 12px 16px; border: 2px solid #3d3d5c; border-radius: 22px; background: #1a1a2e; color: white; font-size: 14px; outline: none; }
+input {
+  flex: 1;
+  padding: 12px 16px;
+  border: 2px solid #3d3d5c;
+  border-radius: 22px;
+  background: rgba(26, 26, 46, 0.8);
+  color: white;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.3s;
+}
 input:focus { border-color: #6366f1; }
 input::placeholder { color: #666; }
-.btn { padding: 12px 18px; border: none; border-radius: 22px; font-size: 14px; font-weight: 700; cursor: pointer; }
-.btn-send { background: linear-gradient(135deg, #6366f1, #8b5cf6); color: white; }
-.btn-voice { background: #10b981; color: white; width: 100%; margin-top: 8px; }
-.messages { max-height: 120px; overflow-y: auto; margin-bottom: 8px; }
-.msg { padding: 8px 14px; border-radius: 14px; margin-bottom: 6px; font-size: 13px; }
+.btn {
+  padding: 12px 18px;
+  border: none;
+  border-radius: 22px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.btn:active { transform: scale(0.95); }
+.btn-send { background: linear-gradient(135deg, #6366f1, #8b5cf6); color: white; box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4); }
+.btn-voice { background: #10b981; color: white; width: 100%; margin-top: 8px; box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3); }
+.messages { max-height: 100px; overflow-y: auto; margin-bottom: 8px; }
+.msg { padding: 8px 14px; border-radius: 14px; margin-bottom: 6px; font-size: 13px; animation: msgIn 0.3s ease; }
+@keyframes msgIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 .msg-me { background: linear-gradient(135deg, #6366f1, #8b5cf6); margin-left: auto; max-width: 75%; }
-.msg-them { background: #2d2d4a; margin-right: auto; max-width: 75%; }
-.langs { display: flex; gap: 6px; padding: 10px 12px; background: #16162a; }
-.lang { flex: 1; padding: 8px; background: #2d2d4a; border: 2px solid transparent; border-radius: 10px; font-size: 12px; font-weight: 600; cursor: pointer; text-align: center; color: #888; }
-.lang.active { border-color: #6366f1; color: white; background: #3d3d5c; }
-.status { text-align: center; padding: 6px; font-size: 11px; color: #555; }
-.recording { display: none; align-items: center; justify-content: center; gap: 6px; padding: 8px; background: #fef2f2; border-radius: 10px; color: #dc2626; font-size: 12px; margin-top: 6px; }
+.msg-them { background: rgba(45, 45, 74, 0.8); margin-right: auto; max-width: 75%; }
+.langs { display: flex; gap: 6px; padding: 10px 12px; background: rgba(22, 22, 42, 0.8); }
+.lang { flex: 1; padding: 8px; background: rgba(45, 45, 74, 0.6); border: 2px solid transparent; border-radius: 10px; font-size: 12px; font-weight: 600; cursor: pointer; text-align: center; color: #888; transition: all 0.3s; }
+.lang.active { border-color: #6366f1; color: white; background: rgba(99, 102, 241, 0.3); }
+.status { text-align: center; padding: 6px; font-size: 11px; color: #6366f1; }
+.recording { display: none; align-items: center; justify-content: center; gap: 6px; padding: 8px; background: rgba(254, 242, 242, 0.9); border-radius: 10px; color: #dc2626; font-size: 12px; margin-top: 6px; font-weight: 600; }
 .recording.show { display: flex; }
 .rec-dot { width: 8px; height: 8px; background: #dc2626; border-radius: 50%; animation: blink 1s infinite; }
 @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+/* SIGN INDICATOR */
+.sign-text {
+  position: absolute;
+  bottom: -40px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 24px;
+  font-weight: 800;
+  color: #a78bfa;
+  text-shadow: 0 0 20px rgba(167, 139, 250, 0.8);
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+.sign-text.show { opacity: 1; }
 </style>
 </head>
 <body>
 <div class="container">
 <header>
-<h1>✋ MigAvatar</h1>
+<h1>✋ MigAvatar 3D</h1>
 <p class="sub">E-Tłumacz Polskiego Języka Migowego</p>
 </header>
 
@@ -54,35 +362,60 @@ input::placeholder { color: #666; }
 
 <div class="avatar-container">
 <div class="avatar-area">
-<div class="speech-bubble" id="bubble">Cześć!</div>
+<div class="bubble-3d" id="bubble">Cześć!</div>
 
-<svg class="person" viewBox="0 0 200 280" id="person">
-<!-- Head -->
-<circle cx="100" cy="40" r="28" fill="#6366f1"/>
-<!-- Eyes -->
-<circle cx="92" cy="36" r="4" fill="white"/>
-<circle cx="108" cy="36" r="4" fill="white"/>
-<!-- Smile -->
-<path d="M94 48 Q100 54 106 48" stroke="white" stroke-width="2" fill="none"/>
-<!-- Body -->
-<path d="M100 68 L100 160" stroke="#6366f1" stroke-width="28" stroke-linecap="round"/>
-<!-- Left Arm -->
-<path d="M75 85 L60 120 L45 100" stroke="#6366f1" stroke-width="16" stroke-linecap="round" fill="none"/>
-<!-- Right Arm -->
-<path d="M125 85 L140 120 L155 100" stroke="#6366f1" stroke-width="16" stroke-linecap="round" fill="none"/>
-<!-- Left Hand -->
-<circle cx="40" cy="95" r="14" fill="#8b5cf6" id="handL"/>
-<!-- Right Hand -->
-<circle cx="160" cy="95" r="14" fill="#8b5cf6" id="handR"/>
-<!-- Left Leg -->
-<path d="M85 160 L75 250" stroke="#6366f1" stroke-width="18" stroke-linecap="round"/>
-<!-- Right Leg -->
-<path d="M115 160 L125 250" stroke="#6366f1" stroke-width="18" stroke-linecap="round"/>
-</svg>
+<div class="person-3d" id="person">
+<!-- HEAD -->
+<div class="head-3d">
+  <div class="eyes-3d">
+    <div class="eye-3d"></div>
+    <div class="eye-3d"></div>
+  </div>
+  <div class="mouth-3d"></div>
+</div>
+
+<!-- NECK -->
+<div class="neck-3d"></div>
+
+<!-- TORSO -->
+<div class="torso-3d"></div>
+
+<!-- ARMS -->
+<div class="arm-3d arm-left-3d" id="armL"></div>
+<div class="arm-3d arm-right-3d" id="armR"></div>
+
+<!-- HANDS -->
+<div class="hand-3d hand-left-3d" id="handL">
+  <div class="finger"></div>
+  <div class="finger"></div>
+  <div class="finger"></div>
+</div>
+<div class="hand-3d hand-right-3d" id="handR">
+  <div class="finger"></div>
+  <div class="finger"></div>
+  <div class="finger"></div>
+</div>
+
+<!-- HIPS -->
+<div class="hips-3d"></div>
+
+<!-- LEGS -->
+<div class="leg-3d leg-left-3d"></div>
+<div class="leg-3d leg-right-3d"></div>
+
+<!-- FEET -->
+<div class="foot-3d foot-left-3d"></div>
+<div class="foot-3d foot-right-3d"></div>
+
+<!-- SHADOW -->
+<div class="shadow-3d"></div>
+</div>
+
+<div class="sign-text" id="signText">A</div>
 </div>
 </div>
 
-<div class="status" id="status">Wpisz wiadomość</div>
+<div class="status" id="status">Gotowy</div>
 
 <div class="chat-area">
 <div class="messages" id="msgs"></div>
@@ -96,42 +429,44 @@ input::placeholder { color: #666; }
 </div>
 
 <script>
-// Sign poses - hand positions A-Z
 var POSES = {
-A:{lX:35,lY:90,rX:165,rY:95},
-B:{lX:35,lY:75,rX:165,rY:95},
-C:{lX:50,lY:80,rX:165,rY:95},
-D:{lX:35,lY:80,rX:165,rY:85},
-E:{lX:50,lY:90,rX:165,rY:95},
-F:{lX:30,lY:75,rX:165,rY:85},
-G:{lX:25,lY:95,rX:165,rY:95},
-H:{lX:40,lY:95,rX:165,rY:95},
-I:{lX:50,lY:100,rX:165,rY:90},
-J:{lX:50,lY:90,rX:165,rY:80},
-K:{lX:40,lY:90,rX:165,rY:85},
-L:{lX:35,lY:70,rX:165,rY:100},
-M:{lX:50,lY:95,rX:165,rY:95},
-N:{lX:50,lY:95,rX:165,rY:95},
-O:{lX:50,lY:80,rX:165,rY:95},
-P:{lX:25,lY:105,rX:165,rY:80},
-Q:{lX:40,lY:105,rX:165,rY:85},
-R:{lX:40,lY:90,rX:165,rY:85},
-S:{lX:50,lY:100,rX:165,rY:100},
-T:{lX:50,lY:100,rX:165,rY:100},
-U:{lX:40,lY:90,rX:165,rY:90},
-V:{lX:40,lY:85,rX:165,rY:85},
-W:{lX:40,lY:80,rX:165,rY:80},
-X:{lX:50,lY:95,rX:165,rY:90},
-Y:{lX:25,lY:100,rX:175,rY:100},
-Z:{lX:50,lY:95,rX:165,rY:85}
+A:{hL:{x:5,y:-5},hR:{x:-5,y:-5},aL:20,aR:-20},
+B:{hL:{x:0,y:-20},hR:{x:0,y:5},aL:0,aR:0},
+C:{hL:{x:15,y:0},hR:{x:-15,y:0},aL:-15,aR:15},
+D:{hL:{x:0,y:-10},hR:{x:0,y:-5},aL:10,aR:-10},
+E:{hL:{x:10,y:5},hR:{x:-10,y:5},aL:-5,aR:5},
+F:{hL:{x:-5,y:-20},hR:{x:0,y:-5},aL:5,aR:-5},
+G:{hL:{x:-20,y:5},hR:{x:-15,y:5},aL:30,aR:-15},
+H:{hL:{x:-5,y:0},hR:{x:-5,y:0},aL:15,aR:-15},
+I:{hL:{x:10,y:10},hR:{x:-10,y:-10},aL:-25,aR:25},
+J:{hL:{x:10,y:0},hR:{x:-10,y:-20},aL:-30,aR:30},
+K:{hL:{x:-5,y:-5},hR:{x:-5,y:-10},aL:10,aR:-10},
+L:{hL:{x:0,y:-25},hR:{x:-5,y:10},aL:-5,aR:5},
+M:{hL:{x:10,y:5},hR:{x:-10,y:5},aL:0,aR:0},
+N:{hL:{x:10,y:5},hR:{x:-10,y:5},aL:0,aR:0},
+O:{hL:{x:15,y:0},hR:{x:-15,y:0},aL:-10,aR:10},
+P:{hL:{x:-20,y:15},hR:{x:-5,y:-20},aL:40,aR:-40},
+Q:{hL:{x:-15,y:15},hR:{x:-5,y:-15},aL:35,aR:-35},
+R:{hL:{x:-5,y:-5},hR:{x:-5,y:-5},aL:15,aR:-15},
+S:{hL:{x:10,y:8},hR:{x:-10,y:8},aL:0,aR:0},
+T:{hL:{x:10,y:8},hR:{x:-10,y:8},aL:0,aR:0},
+U:{hL:{x:-5,y:0},hR:{x:-5,y:0},aL:0,aR:0},
+V:{hL:{x:-5,y:-5},hR:{x:-5,y:-5},aL:0,aR:0},
+W:{hL:{x:-5,y:-10},hR:{x:-5,y:-10},aL:0,aR:0},
+X:{hL:{x:10,y:5},hR:{x:-10,y:-5},aL:5,aR:-5},
+Y:{hL:{x:-25,y:5},hR:{x:25,y:5},aL:45,aR:-45},
+Z:{hL:{x:10,y:5},hR:{x:-10,y:-10},aL:0,aR:-20}
 };
 
 var handL = document.getElementById('handL');
 var handR = document.getElementById('handR');
+var armL = document.getElementById('armL');
+var armR = document.getElementById('armR');
 var bubble = document.getElementById('bubble');
+var signText = document.getElementById('signText');
 var msgInput = document.getElementById('msgInput');
 var msgs = document.getElementById('msgs');
-var status = document.getElementById('status');
+var statusEl = document.getElementById('status');
 var recInd = document.getElementById('recInd');
 var lang = 'pl-PL';
 var rec = null;
@@ -145,21 +480,27 @@ document.getElementById('langDE').className = 'lang' + (l==='de-DE'?' active':''
 if (rec) rec.lang = l;
 }
 
-function animatePose(pose) {
-handL.setAttribute('cx', pose.lX);
-handL.setAttribute('cy', pose.lY);
-handR.setAttribute('cx', pose.rX);
-handR.setAttribute('cy', pose.rY);
+function applyPose(pose) {
+handL.style.transform = 'translate(' + pose.hL.x + 'px, ' + pose.hL.y + 'px)';
+handR.style.transform = 'translate(' + pose.hR.x + 'px, ' + pose.hR.y + 'px)';
+armL.style.transform = 'rotate(' + pose.aL + 'deg)';
+armR.style.transform = 'rotate(' + pose.aR + 'deg)';
 }
 
 function showSign(text) {
 var chars = text.toUpperCase().split('').filter(function(c){return /[A-Z]/.test(c)});
 if (!chars.length) return;
 var i = 0;
+signText.classList.add('show');
 function next() {
-if (i >= chars.length) return;
+if (i >= chars.length) {
+signText.classList.remove('show');
+applyPose(POSES['A']);
+return;
+}
 var pose = POSES[chars[i]] || POSES['A'];
-animatePose(pose);
+applyPose(pose);
+signText.textContent = chars[i];
 i++;
 setTimeout(next, 700);
 }
@@ -183,7 +524,6 @@ bubble.classList.add('show');
 msgInput.value = '';
 setTimeout(function(){bubble.classList.remove('show')}, 2500);
 
-// Speak
 try {
 var u = new SpeechSynthesisUtterance(text);
 u.lang = lang;
@@ -191,15 +531,12 @@ u.rate = 0.9;
 speechSynthesis.speak(u);
 } catch(e) {}
 
-// Show sign
 showSign(text);
-
-// Simulate response
-status.textContent = 'Avatar pokazuje Migi...';
+statusEl.textContent = 'Avatar pokazuje Migi...';
 setTimeout(function() {
 var resps = ['Rozumiem!', 'Ok!', 'Dzięki!', 'Jasne!'];
 addMsg(resps[Math.floor(Math.random()*resps.length)], false);
-status.textContent = 'Gotowy';
+statusEl.textContent = 'Gotowy';
 }, 1500);
 }
 
@@ -214,36 +551,32 @@ msgInput.value = e.results[0][0].transcript.toUpperCase();
 sendMsg();
 };
 rec.onerror = function(e) {
-if (e.error !== 'no-speech') status.textContent = 'Błąd: ' + e.error;
+if (e.error !== 'no-speech') statusEl.textContent = 'Błąd: ' + e.error;
 stopMic();
 };
 rec.onend = stopMic;
 }
-if (isRec) {
-stopMic();
-} else {
+if (isRec) { stopMic(); }
+else {
 rec.start();
 isRec = true;
 recInd.classList.add('show');
-status.textContent = 'Słucham... mów!';
+statusEl.textContent = 'Słucham...';
 }
-} catch(e) {
-status.textContent = 'Mikrofon niedostępny';
-}
+} catch(e) { statusEl.textContent = 'Mikrofon niedostępny'; }
 }
 
 function stopMic() {
 isRec = false;
 recInd.classList.remove('show');
 try { rec.stop(); } catch(e) {}
-status.textContent = 'Gotowy';
+statusEl.textContent = 'Gotowy';
 }
 
 msgInput.addEventListener('keypress', function(e) {
 if (e.key === 'Enter') sendMsg();
 });
 
-// Hello animation
 setTimeout(function() {
 bubble.textContent = 'Cześć! Wpisz coś!';
 bubble.classList.add('show');
