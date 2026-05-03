@@ -3,265 +3,331 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>SignTalk - Głos na Migowy</title>
+<title>MigAvatar - E-Tłumacz Migowego</title>
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; }
-body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; background: #f8fafc; min-height: 100vh; padding: 20px; }
-.container { max-width: 500px; margin: 0 auto; }
-h1 { font-size: 28px; font-weight: 800; background: linear-gradient(135deg, #6366f1, #0ea5e9); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 4px; }
-.sub { color: #64748b; font-size: 14px; margin-bottom: 20px; }
-.card { background: white; border-radius: 20px; padding: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.08); margin-bottom: 16px; }
-input { width: 100%; padding: 20px; font-size: 24px; border: 3px solid #e2e8f0; border-radius: 14px; text-transform: uppercase; text-align: center; letter-spacing: 4px; outline: none; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; background: #1a1a2e; color: white; min-height: 100vh; overflow: hidden; }
+.container { max-width: 500px; margin: 0 auto; height: 100vh; display: flex; flex-direction: column; }
+header { padding: 15px 20px; background: linear-gradient(135deg, #6366f1, #8b5cf6); text-align: center; }
+h1 { font-size: 22px; font-weight: 800; }
+.sub { font-size: 12px; opacity: 0.9; }
+
+/* AVATAR AREA */
+.avatar-container { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; background: linear-gradient(180deg, #1a1a2e 0%, #2d2d4a 100%); }
+.avatar { position: relative; width: 200px; height: 300px; }
+.silhouette { position: absolute; width: 100%; height: 100%; }
+
+/* Simple SVG Person */
+.person-svg { width: 100%; height: 100%; }
+
+/* Hand positions for signs */
+.hand { transition: all 0.3s ease; transform-origin: center; }
+.hand-left { transform-origin: 85px 140px; }
+.hand-right { transform-origin: 115px 140px; }
+
+/* Sign animations */
+@keyframes signA {
+  0%, 100% { transform: rotate(0deg) translateY(0); }
+  50% { transform: rotate(-10deg) translateY(-5px); }
+}
+@keyframes signB {
+  0%, 100% { transform: rotate(0deg); }
+  50% { transform: rotate(15deg) translateY(-8px); }
+}
+@keyframes signC {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(0.9) rotate(5deg); }
+}
+@keyframes idle {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
+}
+.idle { animation: idle 2s ease-in-out infinite; }
+
+/* SPEECH BUBBLE */
+.speech-bubble { position: absolute; top: 20px; background: white; color: #1a1a2e; padding: 12px 20px; border-radius: 20px; font-size: 16px; font-weight: 600; max-width: 80%; text-align: center; opacity: 0; transition: opacity 0.3s; }
+.speech-bubble.show { opacity: 1; }
+.speech-bubble::after { content: ''; position: absolute; bottom: -10px; left: 50%; transform: translateX(-50%); border: 10px solid transparent; border-top-color: white; border-bottom: 0; }
+
+/* CHAT AREA */
+.chat-area { background: #16162a; padding: 15px; border-radius: 20px 20px 0 0; }
+.input-row { display: flex; gap: 10px; margin-bottom: 10px; }
+input { flex: 1; padding: 14px 18px; border: 2px solid #3d3d5c; border-radius: 25px; background: #1a1a2e; color: white; font-size: 15px; outline: none; }
 input:focus { border-color: #6366f1; }
-input::placeholder { color: #94a3b8; text-transform: none; letter-spacing: 0; }
-.row { display: flex; gap: 8px; margin-bottom: 16px; }
-.lang { flex: 1; padding: 14px; background: white; border: 2px solid #e2e8f0; border-radius: 12px; font-size: 14px; font-weight: 600; cursor: pointer; text-align: center; }
-.lang.active { background: #6366f1; border-color: #6366f1; color: white; }
-.result { min-height: 180px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
-.result-icon { font-size: 72px; animation: bounce 0.7s ease-in-out infinite alternate; }
-@keyframes bounce { from { transform: translateY(0); } to { transform: translateY(-14px); } }
-.result-letter { font-size: 56px; font-weight: 800; color: #6366f1; margin-top: 8px; }
-.placeholder { color: #94a3b8; font-size: 15px; }
-.btn { width: 100%; padding: 18px; font-size: 16px; font-weight: 700; border: none; border-radius: 14px; cursor: pointer; margin-top: 10px; display: flex; align-items: center; justify-content: center; gap: 8px; }
-.btn-purple { background: linear-gradient(135deg, #6366f1, #4f46e5); color: white; }
-.btn-green { background: #10b981; color: white; }
-.btn-blue { background: #0ea5e9; color: white; }
-.btn-red { background: #ef4444; color: white; }
-.msg { padding: 12px; border-radius: 10px; font-size: 14px; margin-top: 10px; display: none; text-align: center; }
-.msg-error { background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; display: block; }
-.msg-ok { background: #f0fdf4; color: #16a34a; border: 1px solid #bbf7d0; display: block; }
-.speed { background: white; border-radius: 14px; padding: 16px; margin-top: 10px; }
-.speed-label { font-size: 13px; color: #64748b; margin-bottom: 10px; display: flex; justify-content: space-between; }
-.speed input { padding: 0; border: none; height: 8px; background: #e2e8f0; border-radius: 4px; -webkit-appearance: none; width: 100%; }
-.speed input::-webkit-slider-thumb { -webkit-appearance: none; width: 22px; height: 22px; background: linear-gradient(135deg, #6366f1, #0ea5e9); border-radius: 50%; cursor: pointer; }
-.test-status { padding: 12px; background: #fffbeb; border: 1px solid #fcd34d; border-radius: 10px; font-size: 12px; color: #92400e; margin-top: 10px; }
+.btn { padding: 14px 20px; border: none; border-radius: 25px; font-size: 15px; font-weight: 700; cursor: pointer; }
+.btn-send { background: linear-gradient(135deg, #6366f1, #8b5cf6); color: white; }
+.btn-voice { background: #10b981; color: white; }
+
+/* MESSAGE LIST */
+.messages { max-height: 150px; overflow-y: auto; margin-bottom: 10px; }
+.msg { padding: 10px 15px; border-radius: 15px; margin-bottom: 8px; font-size: 14px; }
+.msg-me { background: linear-gradient(135deg, #6366f1, #8b5cf6); margin-left: auto; max-width: 80%; }
+.msg-them { background: #2d2d4a; margin-right: auto; max-width: 80%; }
+
+/* LANGUAGE SELECTOR */
+.langs { display: flex; gap: 8px; padding: 10px; background: #16162a; }
+.lang { flex: 1; padding: 10px; background: #2d2d4a; border: 2px solid transparent; border-radius: 10px; font-size: 13px; font-weight: 600; cursor: pointer; text-align: center; color: #888; }
+.lang.active { border-color: #6366f1; color: white; background: #3d3d5c; }
+
+/* STATUS */
+.status { text-align: center; padding: 8px; font-size: 12px; color: #666; }
+.status.ok { color: #10b981; }
+
+/* RECORDING INDICATOR */
+.recording-indicator { display: none; align-items: center; justify-content: center; gap: 8px; padding: 10px; background: #fef2f2; border-radius: 10px; color: #dc2626; font-size: 13px; margin-top: 10px; }
+.recording-indicator.show { display: flex; }
+.rec-dot { width: 10px; height: 10px; background: #dc2626; border-radius: 50%; animation: pulse 1s infinite; }
+@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
 </style>
 </head>
 <body>
 <div class="container">
-<h1>✋ SignTalk</h1>
-<p class="sub">Zamień tekst na znaki Migowe + głos</p>
+<header>
+<h1>✋ MigAvatar</h1>
+<p class="sub">E-Tłumacz Polskiego Języka Migowego</p>
+</header>
 
-<div class="card">
-<div class="row">
+<div class="langs">
 <div class="lang active" id="langPL" onclick="setLang('pl-PL')">🇵🇱 Polski</div>
 <div class="lang" id="langEN" onclick="setLang('en-US')">🇺🇸 English</div>
 <div class="lang" id="langDE" onclick="setLang('de-DE')">🇩🇪 Deutsch</div>
 </div>
-<input type="text" id="wordInput" placeholder="Wpisz tutaj..." maxlength="20">
-<div id="msgBox"></div>
-<div id="testStatus" class="test-status"></div>
+
+<div class="avatar-container">
+<div class="avatar">
+<!-- SVG Silhouette Person -->
+<svg class="person-svg idle" viewBox="0 0 200 300" id="avatarSvg">
+<!-- Head -->
+<circle cx="100" cy="50" r="30" fill="#6366f1"/>
+<!-- Body -->
+<path d="M100 80 L100 180" stroke="#6366f1" stroke-width="30" stroke-linecap="round"/>
+<!-- Arms -->
+<path d="M70 100 L100 130 L130 100" stroke="#6366f1" stroke-width="20" stroke-linecap="round" fill="none"/>
+<!-- Legs -->
+<path d="M80 180 L70 280" stroke="#6366f1" stroke-width="20" stroke-linecap="round"/>
+<path d="M120 180 L130 280" stroke="#6366f1" stroke-width="20" stroke-linecap="round"/>
+<!-- Left Hand -->
+<circle cx="55" cy="95" r="15" fill="#8b5cf6" class="hand hand-left" id="handLeft"/>
+<!-- Right Hand -->
+<circle cx="145" cy="95" r="15" fill="#8b5cf6" class="hand hand-right" id="handRight"/>
+<!-- Face -->
+<circle cx="90" cy="45" r="4" fill="white"/>
+<circle cx="110" cy="45" r="4" fill="white"/>
+<path d="M95 60 Q100 65 105 60" stroke="white" stroke-width="2" fill="none"/>
+</svg>
+
+<div class="speech-bubble" id="speechBubble">Cześć!</div>
+</div>
 </div>
 
-<div class="card">
-<div class="result" id="result">
-<p class="placeholder">Wpisz słowo powyżej<br>i kliknij przycisk</p>
-</div>
-</div>
+<div class="status" id="statusText">Wpisz wiadomość poniżej</div>
 
-<button class="btn btn-purple" onclick="showSigns()">✋ Pokaż znaki Migowe</button>
-<button class="btn btn-green" id="speakBtn" onclick="speakText()">🔊 Przeczytaj głosem</button>
-<button class="btn btn-blue" id="micBtn" onclick="toggleMic()">🎤 Nagraj głos</button>
-
-<div class="speed">
-<div class="speed-label">
-<span>Prędkość</span>
-<span id="speedVal">0.8s</span>
+<div class="chat-area">
+<div class="messages" id="messages"></div>
+<div class="input-row">
+<input type="text" id="msgInput" placeholder="Wpisz wiadomość..." maxlength="100">
+<button class="btn btn-send" onclick="sendMessage()">✋</button>
 </div>
-<input type="range" id="speedSlider" min="300" max="1200" value="800" oninput="updateSpeed()">
+<button class="btn btn-voice" style="width:100%" onclick="toggleVoice()">🎤 Nagraj głos</button>
+<div class="recording-indicator" id="recIndicator">
+<span class="rec-dot"></span> Nagrywam...
+</div>
 </div>
 </div>
 
 <script>
-// Signs dictionary
-var SIGNS = {A:'✋',B:'👆',C:'🤟',D:'👇',E:'🤚',F:'✌️',G:'👌',H:'🤙',I:'☝️',J:'☝️',K:'🤲',L:'🖐️',M:'✊',N:'🤌',O:'👌',P:'🤜',Q:'🤏',R:'🤙',S:'✋',T:'🤚',U:'🖐️',V:'✌️',W:'🤞',X:'🤞',Y:'✋',Z:'🤟'};
-var lang = 'pl-PL';
-var speed = 800;
-var isListening = false;
-var resultEl = document.getElementById('result');
-var wordInput = document.getElementById('wordInput');
-var msgBox = document.getElementById('msgBox');
-var speakBtn = document.getElementById('speakBtn');
-var micBtn = document.getElementById('micBtn');
-var testStatus = document.getElementById('testStatus');
+// Sign language poses - hand positions for A-Z (simplified)
+const SIGN_POSES = {
+A: { left: {x: 45, y: 80, r: 15}, right: {x: 155, y: 95, r: 15} },
+B: { left: {x: 45, y: 70, r: 12}, right: {x: 155, y: 95, r: 15} },
+C: { left: {x: 55, y: 85, r: 18}, right: {x: 145, y: 95, r: 15} },
+D: { left: {x: 45, y: 75, r: 12}, right: {x: 155, y: 90, r: 12} },
+E: { left: {x: 55, y: 90, r: 15}, right: {x: 145, y: 95, r: 15} },
+F: { left: {x: 40, y: 70, r: 12}, right: {x: 155, y: 90, r: 12} },
+G: { left: {x: 35, y: 90, r: 15}, right: {x: 145, y: 95, r: 15} },
+H: { left: {x: 45, y: 90, r: 12}, right: {x: 155, y: 90, r: 12} },
+I: { left: {x: 55, y: 95, r: 10}, right: {x: 145, y: 90, r: 10} },
+J: { left: {x: 55, y: 85, r: 10}, right: {x: 145, y: 80, r: 10} },
+K: { left: {x: 45, y: 85, r: 12}, right: {x: 155, y: 85, r: 12} },
+L: { left: {x: 45, y: 70, r: 10}, right: {x: 155, y: 95, r: 10} },
+M: { left: {x: 55, y: 90, r: 10}, right: {x: 145, y: 90, r: 10} },
+N: { left: {x: 55, y: 90, r: 10}, right: {x: 145, y: 90, r: 10} },
+O: { left: {x: 55, y: 85, r: 15}, right: {x: 145, y: 95, r: 15} },
+P: { left: {x: 35, y: 100, r: 12}, right: {x: 155, y: 80, r: 12} },
+Q: { left: {x: 45, y: 100, r: 12}, right: {x: 155, y: 85, r: 12} },
+R: { left: {x: 45, y: 85, r: 10}, right: {x: 155, y: 85, r: 10} },
+S: { left: {x: 55, y: 95, r: 14}, right: {x: 145, y: 95, r: 14} },
+T: { left: {x: 55, y: 95, r: 14}, right: {x: 145, y: 95, r: 14} },
+U: { left: {x: 45, y: 85, r: 10}, right: {x: 155, y: 85, r: 10} },
+V: { left: {x: 45, y: 80, r: 10}, right: {x: 155, y: 80, r: 10} },
+W: { left: {x: 45, y: 75, r: 10}, right: {x: 155, y: 75, r: 10} },
+X: { left: {x: 55, y: 90, r: 12}, right: {x: 145, y: 90, r: 12} },
+Y: { left: {x: 35, y: 95, r: 10}, right: {x: 165, y: 95, r: 10} },
+Z: { left: {x: 55, y: 90, r: 12}, right: {x: 145, y: 85, r: 12} }
+};
+
+// Avatar elements
+const handLeft = document.getElementById('handLeft');
+const handRight = document.getElementById('handRight');
+const speechBubble = document.getElementById('speechBubble');
+const avatarSvg = document.getElementById('avatarSvg');
+const msgInput = document.getElementById('msgInput');
+const messages = document.getElementById('messages');
+const statusText = document.getElementById('statusText');
+const recIndicator = document.getElementById('recIndicator');
+
+// State
+var currentLang = 'pl-PL';
 var recognition = null;
+var isListening = false;
+var messages_list = [];
 
-// ===== TTS (Text-to-Speech) - KLUCZOWA FUNKCJA =====
-function speakText() {
-  var text = wordInput.value.trim();
-  if (!text) {
-    showMsg('Wpisz jakieś słowo!', 'error');
-    return;
-  }
-  
-  // Cancel any current speech
-  try { speechSynthesis.cancel(); } catch(e) {}
-  
-  setTimeout(function() {
-    // Create utterance - KLUCZOWE!
-    var utter = new SpeechSynthesisUtterance(text);
-    utter.lang = lang;
-    utter.rate = 0.9;
-    utter.pitch = 1;
-    
-    utter.onstart = function() {
-      showMsg('🔊 Czytam...', 'ok');
-      speakBtn.disabled = true;
-    };
-    
-    utter.onend = function() {
-      speakBtn.disabled = false;
-      showMsg('✓ Przeczytane!', 'ok');
-    };
-    
-    utter.onerror = function(e) {
-      speakBtn.disabled = false;
-      if (e.error !== 'canceled') {
-        showMsg('Błąd: ' + e.error, 'error');
-      }
-    };
-    
-    // SPEAK!
-    speechSynthesis.speak(utter);
-  }, 50);
-}
-
-// ===== Load voices and test TTS =====
-function testTTS() {
-  try {
-    var voices = speechSynthesis.getVoices();
-    if (voices.length > 0) {
-      testStatus.innerHTML = '✓ Głosy załadowane: ' + voices.length + ' głosów';
-      testStatus.style.background = '#f0fdf4';
-      testStatus.style.color = '#16a34a';
-      testStatus.style.borderColor = '#bbf7d0';
-      
-      // Test if we can actually speak
-      try {
-        speechSynthesis.cancel();
-        var testUtter = new SpeechSynthesisUtterance('Test');
-        testUtter.lang = lang;
-        testUtter.rate = 1;
-        speechSynthesis.speak(testUtter);
-      } catch(e) {
-        testStatus.innerHTML += '<br>❌ Test mowy nie działa: ' + e.message;
-      }
-    } else {
-      testStatus.innerHTML = '⏳ Ładowanie głosów...';
-      setTimeout(testTTS, 500);
-    }
-  } catch(e) {
-    testStatus.innerHTML = '❌ Błąd: ' + e.message;
-  }
-}
-
-// Init TTS
+// Speech Recognition
 try {
-  testTTS();
-  if (speechSynthesis.onvoiceschanged !== undefined) {
-    speechSynthesis.onvoiceschanged = testTTS;
-  }
-  setTimeout(testTTS, 500);
-  setTimeout(testTTS, 1000);
-  setTimeout(testTTS, 2000);
-} catch(e) {
-  testStatus.innerHTML = '❌ System TTS niedostępny';
+var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+if (SR) {
+recognition = new SR();
+recognition.lang = currentLang;
+recognition.onresult = function(e) {
+msgInput.value = e.results[0][0].transcript.toUpperCase();
+sendMessage();
+};
+recognition.onerror = function(e) {
+if (e.error !== 'no-speech') {
+statusText.textContent = 'Błąd: ' + e.error;
 }
-
-// ===== Speech Recognition =====
-try {
-  var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-  if (SR) {
-    recognition = new SR();
-    recognition.lang = lang;
-    recognition.onresult = function(e) {
-      wordInput.value = e.results[0][0].transcript.toUpperCase();
-      showSigns();
-    };
-    recognition.onerror = function(e) {
-      if (e.error !== 'no-speech') {
-        showMsg('Błąd mikrofonu: ' + e.error, 'error');
-      }
-      stopMic();
-    };
-    recognition.onend = stopMic;
-  }
+stopListening();
+};
+recognition.onend = stopListening;
+}
 } catch(e) {}
 
-function toggleMic() {
-  if (!recognition) {
-    showMsg('Mikrofon niedostępny', 'error');
-    return;
-  }
-  if (isListening) {
-    stopMic();
-  } else {
-    hideMsg();
-    isListening = true;
-    micBtn.innerHTML = '⏹️ Zatrzymaj';
-    micBtn.className = 'btn btn-red';
-    try {
-      recognition.start();
-      showMsg('🎤 Słucham...', 'ok');
-    } catch(e) {
-      showMsg('Nie można uruchomić mikrofonu', 'error');
-      stopMic();
-    }
-  }
+function toggleVoice() {
+if (!recognition) {
+statusText.textContent = 'Mikrofon niedostępny';
+return;
+}
+if (isListening) {
+stopListening();
+} else {
+startListening();
+}
 }
 
-function stopMic() {
-  isListening = false;
-  micBtn.innerHTML = '🎤 Nagraj głos';
-  micBtn.className = 'btn btn-blue';
-  try { recognition.stop(); } catch(e) {}
+function startListening() {
+try {
+recognition.start();
+isListening = true;
+recIndicator.classList.add('show');
+statusText.textContent = 'Słucham...';
+} catch(e) {
+statusText.textContent = 'Błąd: ' + e.message;
+}
+}
+
+function stopListening() {
+isListening = false;
+recIndicator.classList.remove('show');
+try { recognition.stop(); } catch(e) {}
+statusText.textContent = 'Gotowy';
 }
 
 function setLang(l) {
-  lang = l;
-  document.getElementById('langPL').className = 'lang' + (l === 'pl-PL' ? ' active' : '');
-  document.getElementById('langEN').className = 'lang' + (l === 'en-US' ? ' active' : '');
-  document.getElementById('langDE').className = 'lang' + (l === 'de-DE' ? ' active' : '');
-  if (recognition) recognition.lang = l;
+currentLang = l;
+document.querySelectorAll('.lang').forEach(el => el.classList.remove('active'));
+document.getElementById('lang' + (l === 'pl-PL' ? 'PL' : l === 'en-US' ? 'EN' : 'DE')).classList.add('active');
+if (recognition) recognition.lang = l;
 }
 
-function updateSpeed() {
-  speed = parseInt(document.getElementById('speedSlider').value);
-  document.getElementById('speedVal').textContent = (speed/1000).toFixed(1) + 's';
+function animateSign(letter) {
+var pose = SIGN_POSES[letter] || SIGN_POSES['A'];
+handLeft.setAttribute('cx', pose.left.x);
+handLeft.setAttribute('cy', pose.left.y);
+handLeft.setAttribute('r', pose.left.r);
+handRight.setAttribute('cx', pose.right.x);
+handRight.setAttribute('cy', pose.right.y);
+handRight.setAttribute('r', pose.right.r);
 }
 
-function showMsg(text, type) {
-  msgBox.textContent = text;
-  msgBox.className = 'msg msg-' + type;
-  if (type === 'ok') {
-    setTimeout(function() { msgBox.className = 'msg'; msgBox.textContent = ''; }, 3000);
-  }
+function showSign(text) {
+var chars = text.toUpperCase().split('').filter(c => /[A-Z]/.test(c));
+if (chars.length === 0) return;
+
+var index = 0;
+function showNext() {
+if (index >= chars.length) {
+avatarSvg.classList.add('idle');
+return;
+}
+avatarSvg.classList.remove('idle');
+animateSign(chars[index]);
+index++;
+setTimeout(showNext, 800);
+}
+showNext();
 }
 
-function showSigns() {
-  var text = wordInput.value.trim().toUpperCase().replace(/[^A-ZĄĘŁŃÓŚŹŻ]/g, '');
-  if (!text) {
-    showMsg('Wpisz jakieś słowo!', 'error');
-    return;
-  }
-  hideMsg();
-  var chars = text.split('');
-  resultEl.innerHTML = '';
-  chars.forEach(function(c, i) {
-    setTimeout(function() {
-      resultEl.innerHTML = '<div class="result-icon">' + (SIGNS[c] || '?') + '</div><div class="result-letter">' + c + '</div>';
-    }, i * speed);
-  });
+function showBubble(text) {
+speechBubble.textContent = text;
+speechBubble.classList.add('show');
+setTimeout(() => {
+speechBubble.classList.remove('show');
+}, 3000);
 }
 
-function hideMsg() {
-  msgBox.className = 'msg';
-  msgBox.textContent = '';
+function addMessage(text, isMe) {
+var div = document.createElement('div');
+div.className = 'msg ' + (isMe ? 'msg-me' : 'msg-them');
+div.textContent = text;
+messages.appendChild(div);
+messages.scrollTop = messages.scrollHeight;
 }
 
-wordInput.addEventListener('keypress', function(e) {
-  if (e.key === 'Enter') showSigns();
+function sendMessage() {
+var text = msgInput.value.trim();
+if (!text) return;
+
+addMessage(text, true);
+speechBubble.textContent = text;
+speechBubble.classList.add('show');
+
+msgInput.value = '';
+
+// Speak if possible
+try {
+var utter = new SpeechSynthesisUtterance(text);
+utter.lang = currentLang;
+utter.rate = 0.9;
+speechSynthesis.speak(utter);
+} catch(e) {}
+
+// Show sign animation
+showSign(text);
+
+// Simulate response after delay
+setTimeout(() => {
+var responses = [
+'Rozumiem!',
+'Ok!',
+'Dzięki!',
+'Jasne!'
+];
+var resp = responses[Math.floor(Math.random() * responses.length)];
+addMessage(resp, false);
+}, 1500);
+}
+
+// Enter to send
+msgInput.addEventListener('keypress', function(e) {
+if (e.key === 'Enter') sendMessage();
 });
+
+// Initial animation
+setTimeout(() => {
+speechBubble.textContent = 'Cześć! Wpisz coś!';
+speechBubble.classList.add('show');
+setTimeout(() => speechBubble.classList.remove('show'), 2000);
+}, 1000);
 </script>
 </body>
 </html>
