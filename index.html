@@ -6,77 +6,20 @@
 <title>MigAvatar 3D</title>
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; }
-body { font-family: -apple-system, BlinkMacSystemFont, sans-serif; background: #1a1a2e; color: white; min-height: 100vh; }
+body { font-family: -apple-system, BlinkMacSystemFont, sans-serif; background: linear-gradient(180deg, #1a1a2e 0%, #2d2d4a 100%); color: white; min-height: 100vh; }
 .container { max-width: 500px; margin: 0 auto; height: 100vh; display: flex; flex-direction: column; }
 header { padding: 12px; background: linear-gradient(135deg, #6366f1, #8b5cf6); text-align: center; }
 h1 { font-size: 18px; font-weight: 800; }
 .langs { display: flex; gap: 6px; padding: 10px; background: #16162a; }
 .lang { flex: 1; padding: 8px; background: #2d2d4a; border: 2px solid transparent; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer; text-align: center; color: #888; }
 .lang.active { border-color: #6366f1; color: white; }
-
-.avatar-box { flex: 1; background: linear-gradient(180deg, #1a1a2e, #2d2d4a); display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; min-height: 350px; }
-.bubble { background: white; color: #1a1a2e; padding: 10px 18px; border-radius: 18px; font-size: 14px; font-weight: 700; opacity: 0; transition: opacity 0.3s; margin-bottom: 15px; }
+.avatar-box { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; min-height: 380px; }
+.bubble { background: white; color: #1a1a2e; padding: 10px 18px; border-radius: 18px; font-size: 14px; font-weight: 700; opacity: 0; transition: opacity 0.3s; margin-bottom: 10px; position: relative; }
 .bubble.show { opacity: 1; }
-.bubble::after { content: ''; position: absolute; bottom: -8px; left: 50%; transform: translateX(-50%); border: 8px solid transparent; border-top-color: white; border-bottom: 0; }
-
-.person-box { position: relative; width: 140px; height: 260px; }
-
-/* HEAD */
-.head { position: absolute; width: 60px; height: 60px; background: linear-gradient(135deg, #a78bfa, #6366f1); border-radius: 50%; left: 50%; top: 0; transform: translateX(-50%); box-shadow: 0 4px 20px rgba(99,102,241,0.5); }
-.head::before { content: ''; position: absolute; width: 20px; height: 10px; background: rgba(255,255,255,0.2); border-radius: 50%; top: 8px; left: 10px; }
-.eye { position: absolute; width: 10px; height: 10px; background: white; border-radius: 50%; top: 22px; }
-.eye.l { left: 14px; }
-.eye.r { right: 14px; }
-.eye::after { content: ''; position: absolute; width: 5px; height: 5px; background: #1a1a2e; border-radius: 50%; top: 3px; left: 3px; }
-.mouth { position: absolute; width: 16px; height: 8px; border: 2px solid white; border-top: none; border-radius: 0 0 10px 10px; bottom: 14px; left: 50%; transform: translateX(-50%); }
-
-/* NECK */
-.neck { position: absolute; width: 20px; height: 15px; background: #6366f1; left: 50%; top: 55px; transform: translateX(-50%); }
-
-/* BODY */
-.body { position: absolute; width: 70px; height: 90px; background: linear-gradient(180deg, #6366f1, #4f46e5); border-radius: 15px 15px 8px 8px; left: 50%; top: 65px; transform: translateX(-50%); box-shadow: inset -10px 0 20px rgba(0,0,0,0.2); }
-
-/* ARMS */
-.arm { position: absolute; width: 20px; height: 80px; background: linear-gradient(180deg, #6366f1, #4f46e5); border-radius: 12px; top: 70px; }
-.arm.l { left: 12px; transform-origin: top center; animation: armL 2s ease-in-out infinite; }
-.arm.r { right: 12px; transform-origin: top center; animation: armR 2s ease-in-out infinite; }
-@keyframes armL { 0%,100%{transform:rotate(0deg)} 30%{transform:rotate(-15deg)} }
-@keyframes armR { 0%,100%{transform:rotate(0deg)} 30%{transform:rotate(15deg)} }
-
-/* HANDS */
-.hand { position: absolute; width: 24px; height: 24px; background: linear-gradient(135deg, #c4b5fd, #a78bfa); border-radius: 50%; box-shadow: 0 3px 10px rgba(139,92,246,0.5); }
-.hand.l { left: 8px; top: 140px; animation: handL 2s ease-in-out infinite; }
-.hand.r { right: 8px; top: 140px; animation: handR 2s ease-in-out infinite; }
-@keyframes handL { 0%,100%{transform:translate(0,0)} 30%{transform:translate(-8px,-12px)} }
-@keyframes handR { 0%,100%{transform:translate(0,0)} 30%{transform:translate(8px,-12px)} }
-
-/* FINGERS */
-.finger { position: absolute; width: 5px; height: 14px; background: linear-gradient(180deg, #c4b5fd, #a78bfa); border-radius: 4px; }
-.hand.l .finger:nth-child(1) { top: -10px; left: 2px; transform: rotate(-10deg); }
-.hand.l .finger:nth-child(2) { top: -12px; left: 9px; }
-.hand.l .finger:nth-child(3) { top: -10px; left: 16px; transform: rotate(10deg); }
-.hand.r .finger:nth-child(1) { top: -10px; left: 2px; transform: rotate(-10deg); }
-.hand.r .finger:nth-child(2) { top: -12px; left: 9px; }
-.hand.r .finger:nth-child(3) { top: -10px; left: 16px; transform: rotate(10deg); }
-
-/* HIPS & LEGS */
-.hips { position: absolute; width: 60px; height: 30px; background: #4f46e5; border-radius: 8px 8px 12px 12px; left: 50%; top: 150px; transform: translateX(-50%); }
-.leg { position: absolute; width: 24px; height: 75px; background: linear-gradient(180deg, #4338ca, #3730a3); border-radius: 8px; top: 175px; }
-.leg.l { left: 38px; }
-.leg.r { right: 38px; }
-.foot { position: absolute; width: 30px; height: 15px; background: #3730a3; border-radius: 6px 6px 8px 8px; top: 245px; }
-.foot.l { left: 35px; }
-.foot.r { right: 35px; }
-
-/* SHADOW */
-.shadow { position: absolute; width: 80px; height: 15px; background: radial-gradient(ellipse, rgba(0,0,0,0.4) 0%, transparent 70%); bottom: -10px; left: 50%; transform: translateX(-50%); animation: shadowAnim 2s ease-in-out infinite; }
-@keyframes shadowAnim { 0%,100%{transform:translateX(-50%) scale(1)} 50%{transform:translateX(-50%) scale(0.85)} }
-
-/* SIGN TEXT */
-.sign-letter { font-size: 28px; font-weight: 800; color: #a78bfa; margin-top: 10px; text-shadow: 0 0 15px rgba(167,139,250,0.8); min-height: 35px; }
-
+.person-svg { width: 150px; height: 280px; animation: float 3s ease-in-out infinite; }
+@keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
+.sign-letter { font-size: 32px; font-weight: 800; color: #a78bfa; margin-top: 10px; text-shadow: 0 0 20px rgba(167,139,250,0.8); min-height: 40px; }
 .status { text-align: center; padding: 8px; font-size: 12px; color: #6366f1; }
-
 .chat-area { background: #16162a; padding: 12px; border-radius: 18px 18px 0 0; }
 .input-row { display: flex; gap: 8px; margin-bottom: 8px; }
 input { flex: 1; padding: 12px 16px; border: 2px solid #3d3d5c; border-radius: 22px; background: #1a1a2e; color: white; font-size: 14px; outline: none; }
@@ -108,40 +51,87 @@ input::placeholder { color: #666; }
 <div class="avatar-box">
 <div class="bubble" id="bubble">Cześć!</div>
 
-<div class="person-box">
+<!-- SVG 3D Person -->
+<svg class="person-svg" viewBox="0 0 150 280" id="personSvg">
+<defs>
+<linearGradient id="skinGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+<stop offset="0%" style="stop-color:#c4b5fd"/>
+<stop offset="100%" style="stop-color:#a78bfa"/>
+</linearGradient>
+<linearGradient id="bodyGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+<stop offset="0%" style="stop-color:#6366f1"/>
+<stop offset="100%" style="stop-color:#4f46e5"/>
+</linearGradient>
+<linearGradient id="legGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+<stop offset="0%" style="stop-color:#4338ca"/>
+<stop offset="100%" style="stop-color:#3730a3"/>
+</linearGradient>
+<filter id="glow">
+<feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+<feMerge><feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/></feMerge>
+</filter>
+</defs>
+
 <!-- HEAD -->
-<div class="head">
-  <div class="eye l"></div>
-  <div class="eye r"></div>
-  <div class="mouth"></div>
-</div>
+<ellipse cx="75" cy="35" rx="32" ry="32" fill="url(#skinGrad)" filter="url(#glow)"/>
+<!-- Eyes -->
+<ellipse cx="65" cy="30" rx="5" ry="6" fill="white"/>
+<ellipse cx="85" cy="30" rx="5" ry="6" fill="white"/>
+<circle cx="66" cy="31" r="3" fill="#1a1a2e"/>
+<circle cx="86" cy="31" r="3" fill="#1a1a2e"/>
+<!-- Smile -->
+<path d="M65 45 Q75 52 85 45" stroke="white" stroke-width="2" fill="none"/>
+
 <!-- NECK -->
-<div class="neck"></div>
+<rect x="67" y="65" width="16" height="15" fill="url(#bodyGrad)"/>
+
 <!-- BODY -->
-<div class="body"></div>
-<!-- ARMS -->
-<div class="arm l" id="armL"></div>
-<div class="arm r" id="armR"></div>
-<!-- HANDS -->
-<div class="hand l" id="handL">
-  <div class="finger"></div>
-  <div class="finger"></div>
-  <div class="finger"></div>
-</div>
-<div class="hand r" id="handR">
-  <div class="finger"></div>
-  <div class="finger"></div>
-  <div class="finger"></div>
-</div>
-<!-- HIPS & LEGS -->
-<div class="hips"></div>
-<div class="leg l"></div>
-<div class="leg r"></div>
-<div class="foot l"></div>
-<div class="foot r"></div>
+<path d="M45 80 L105 80 L110 170 L40 170 Z" fill="url(#bodyGrad)" rx="10"/>
+<!-- Body highlight -->
+<ellipse cx="55" cy="110" rx="8" ry="25" fill="rgba(255,255,255,0.1)"/>
+
+<!-- LEFT ARM -->
+<g id="armL" style="transform-origin: 45px 85px;">
+<path d="M45 85 L20 130 L25 135" stroke="url(#bodyGrad)" stroke-width="18" stroke-linecap="round" fill="none"/>
+</g>
+
+<!-- RIGHT ARM -->
+<g id="armR" style="transform-origin: 105px 85px;">
+<path d="M105 85 L130 130 L125 135" stroke="url(#bodyGrad)" stroke-width="18" stroke-linecap="round" fill="none"/>
+</g>
+
+<!-- LEFT HAND -->
+<g id="handL" style="transition: transform 0.3s;">
+<circle cx="22" cy="140" r="14" fill="url(#skinGrad)" filter="url(#glow)"/>
+<!-- Fingers -->
+<ellipse cx="16" cy="128" rx="4" ry="10" fill="url(#skinGrad)"/>
+<ellipse cx="22" cy="125" rx="4" ry="12" fill="url(#skinGrad)"/>
+<ellipse cx="28" cy="128" rx="4" ry="10" fill="url(#skinGrad)"/>
+</g>
+
+<!-- RIGHT HAND -->
+<g id="handR" style="transition: transform 0.3s;">
+<circle cx="128" cy="140" r="14" fill="url(#skinGrad)" filter="url(#glow)"/>
+<!-- Fingers -->
+<ellipse cx="122" cy="128" rx="4" ry="10" fill="url(#skinGrad)"/>
+<ellipse cx="128" cy="125" rx="4" ry="12" fill="url(#skinGrad)"/>
+<ellipse cx="134" cy="128" rx="4" ry="10" fill="url(#skinGrad)"/>
+</g>
+
+<!-- HIPS -->
+<path d="M45 170 L105 170 L100 200 L50 200 Z" fill="#4f46e5" rx="8"/>
+
+<!-- LEFT LEG -->
+<path d="M50 195 L45 255" stroke="url(#legGrad)" stroke-width="22" stroke-linecap="round"/>
+<ellipse cx="42" cy="262" rx="18" ry="10" fill="#3730a3"/>
+
+<!-- RIGHT LEG -->
+<path d="M100 195 L105 255" stroke="url(#legGrad)" stroke-width="22" stroke-linecap="round"/>
+<ellipse cx="108" cy="262" rx="18" ry="10" fill="#3730a3"/>
+
 <!-- SHADOW -->
-<div class="shadow"></div>
-</div>
+<ellipse cx="75" cy="275" rx="45" ry="8" fill="rgba(0,0,0,0.3)"/>
+</svg>
 
 <div class="sign-letter" id="signLetter"></div>
 </div>
@@ -161,32 +151,32 @@ input::placeholder { color: #666; }
 
 <script>
 var POSES = {
-A:{hL:{x:-10,y:-10},hR:{x:10,y:-10},aL:20,aR:-20},
-B:{hL:{x:0,y:-18},hR:{x:0,y:5},aL:0,aR:0},
-C:{hL:{x:12,y:0},hR:{x:-12,y:0},aL:-15,aR:15},
-D:{hL:{x:0,y:-8},hR:{x:0,y:-5},aL:10,aR:-10},
-E:{hL:{x:8,y:5},hR:{x:-8,y:5},aL:-5,aR:5},
-F:{hL:{x:-5,y:-18},hR:{x:0,y:-5},aL:5,aR:-5},
-G:{hL:{x:-18,y:5},hR:{x:-12,y:5},aL:30,aR:-15},
-H:{hL:{x:-5,y:0},hR:{x:-5,y:0},aL:15,aR:-15},
-I:{hL:{x:8,y:8},hR:{x:-8,y:-8},aL:-25,aR:25},
-J:{hL:{x:8,y:0},hR:{x:-8,y:-18},aL:-30,aR:30},
-K:{hL:{x:-5,y:-5},hR:{x:-5,y:-8},aL:10,aR:-10},
-L:{hL:{x:0,y:-22},hR:{x:-5,y:8},aL:-5,aR:5},
-M:{hL:{x:8,y:5},hR:{x:-8,y:5},aL:0,aR:0},
-N:{hL:{x:8,y:5},hR:{x:-8,y:5},aL:0,aR:0},
-O:{hL:{x:12,y:0},hR:{x:-12,y:0},aL:-10,aR:10},
-P:{hL:{x:-18,y:12},hR:{x:-5,y:-18},aL:40,aR:-40},
-Q:{hL:{x:-12,y:12},hR:{x:-5,y:-12},aL:35,aR:-35},
-R:{hL:{x:-5,y:-5},hR:{x:-5,y:-5},aL:15,aR:-15},
-S:{hL:{x:8,y:6},hR:{x:-8,y:6},aL:0,aR:0},
-T:{hL:{x:8,y:6},hR:{x:-8,y:6},aL:0,aR:0},
-U:{hL:{x:-5,y:0},hR:{x:-5,y:0},aL:0,aR:0},
-V:{hL:{x:-5,y:-5},hR:{x:-5,y:-5},aL:0,aR:0},
-W:{hL:{x:-5,y:-8},hR:{x:-5,y:-8},aL:0,aR:0},
-X:{hL:{x:8,y:5},hR:{x:-8,y:-5},aL:5,aR:-5},
-Y:{hL:{x:-22,y:5},hR:{x:22,y:5},aL:45,aR:-45},
-Z:{hL:{x:8,y:5},hR:{x:-8,y:-8},aL:0,aR:-20}
+A:{hL:{x:-12,y:-15},hR:{x:12,y:-15},aL:25,aR:-25},
+B:{hL:{x:0,y:-25},hR:{x:0,y:5},aL:0,aR:0},
+C:{hL:{x:18,y:0},hR:{x:-18,y:0},aL:-20,aR:20},
+D:{hL:{x:0,y:-12},hR:{x:0,y:-8},aL:12,aR:-12},
+E:{hL:{x:10,y:8},hR:{x:-10,y:8},aL:-8,aR:8},
+F:{hL:{x:-8,y:-25},hR:{x:0,y:-8},aL:8,aR:-8},
+G:{hL:{x:-25,y:8},hR:{x:-15,y:8},aL:35,aR:-20},
+H:{hL:{x:-8,y:0},hR:{x:-8,y:0},aL:18,aR:-18},
+I:{hL:{x:10,y:12},hR:{x:-10,y:-12},aL:-30,aR:30},
+J:{hL:{x:10,y:0},hR:{x:-10,y:-25},aL:-35,aR:35},
+K:{hL:{x:-8,y:-8},hR:{x:-8,y:-12},aL:12,aR:-12},
+L:{hL:{x:0,y:-30},hR:{x:-8,y:12},aL:-8,aR:8},
+M:{hL:{x:10,y:8},hR:{x:-10,y:8},aL:0,aR:0},
+N:{hL:{x:10,y:8},hR:{x:-10,y:8},aL:0,aR:0},
+O:{hL:{x:15,y:0},hR:{x:-15,y:0},aL:-12,aR:12},
+P:{hL:{x:-25,y:18},hR:{x:-8,y:-25},aL:45,aR:-45},
+Q:{hL:{x:-18,y:18},hR:{x:-8,y:-18},aL:40,aR:-40},
+R:{hL:{x:-8,y:-8},hR:{x:-8,y:-8},aL:18,aR:-18},
+S:{hL:{x:10,y:10},hR:{x:-10,y:10},aL:0,aR:0},
+T:{hL:{x:10,y:10},hR:{x:-10,y:10},aL:0,aR:0},
+U:{hL:{x:-8,y:0},hR:{x:-8,y:0},aL:0,aR:0},
+V:{hL:{x:-8,y:-8},hR:{x:-8,y:-8},aL:0,aR:0},
+W:{hL:{x:-8,y:-12},hR:{x:-8,y:-12},aL:0,aR:0},
+X:{hL:{x:10,y:8},hR:{x:-10,y:-8},aL:8,aR:-8},
+Y:{hL:{x:-30,y:8},hR:{x:30,y:8},aL:50,aR:-50},
+Z:{hL:{x:10,y:8},hR:{x:-10,y:-12},aL:0,aR:-25}
 };
 
 var handL = document.getElementById('handL');
