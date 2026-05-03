@@ -52,7 +52,7 @@ button { padding: 10px 14px; border: none; border-radius: 20px; font-size: 13px;
 <div class="bottom">
 <div class="bubble" id="bbl">Cześć!</div>
 <div class="letter" id="ltr"></div>
-<div class="status" id="sts">Gotowy</div>
+<div class="status" id="sts">ŁADUJĘ AVATARA...</div>
 <div class="msgs" id="msgs"></div>
 <div class="row">
 <input id="inp" placeholder="Wpisz wiadomość..." maxlength="50">
@@ -98,6 +98,7 @@ var lang = 'pl-PL';
 var rec = null;
 var recOn = false;
 var msgsEl = document.getElementById('msgs');
+var threeLoaded = false;
 
 function setLangs() {
 document.getElementById('btnPL').className = 'lang' + (lang==='pl-PL'?' on':'');
@@ -106,7 +107,8 @@ document.getElementById('btnDE').className = 'lang' + (lang==='de-DE'?' on':'');
 if (rec) rec.lang = lang;
 }
 
-function init() {
+function init3D() {
+try {
 var canvas = document.getElementById('c');
 scene = new THREE.Scene();
 scene.background = null;
@@ -251,6 +253,12 @@ camera.aspect = window.innerWidth / window.innerHeight;
 camera.updateProjectionMatrix();
 renderer.setSize(window.innerWidth, window.innerHeight);
 });
+
+threeLoaded = true;
+document.getElementById('sts').textContent = '✓ Avatar 3D załadowany!';
+} catch(e) {
+document.getElementById('sts').textContent = 'Błąd 3D: ' + e.message;
+}
 }
 
 function render() {
@@ -259,10 +267,11 @@ if (person) {
 person.rotation.y += 0.005;
 person.position.y = -0.7 + Math.sin(Date.now()*0.001)*0.08;
 }
-renderer.render(scene, camera);
+if (renderer) renderer.render(scene, camera);
 }
 
 function pose(p) {
+if (!handL) return;
 handL.position.x = p.hLx;
 handL.position.y = -1.1 + p.hLy;
 handR.position.x = p.hRx;
@@ -272,6 +281,10 @@ armR.rotation.z = p.aRz;
 }
 
 function sign(txt) {
+if (!threeLoaded) {
+document.getElementById('sts').textContent = 'Poczekaj na załadowanie...';
+return;
+}
 var c = txt.toUpperCase().split('').filter(function(x){return /[A-Z]/.test(x)});
 if (!c.length) return;
 document.getElementById('ltr').textContent = '';
@@ -310,7 +323,7 @@ document.getElementById('sts').textContent = 'Pokazuję Migi...';
 setTimeout(function() {
 var r = ['Rozumiem!','Ok!','Dzięki!','Jasne!'];
 add(r[Math.floor(Math.random()*r.length)], false);
-document.getElementById('sts').textContent = 'Gotowy';
+document.getElementById('sts').textContent = '✓ Gotowe';
 }, 1500);
 }
 
@@ -335,19 +348,28 @@ document.getElementById('sts').textContent = 'Słucham...';
 }
 } catch(e) { document.getElementById('sts').textContent = 'Mikrofon niedostępny'; }
 }
-function stopM() { recOn = false; document.getElementById('rec').className = 'rec'; try { rec.stop(); } catch(e) {} document.getElementById('sts').textContent = 'Gotowy'; }
+function stopM() { recOn = false; document.getElementById('rec').className = 'rec'; try { rec.stop(); } catch(e) {} document.getElementById('sts').textContent = '✓ Gotowe'; }
 
 document.getElementById('inp').addEventListener('keypress', function(e) { if (e.key === 'Enter') snd(); });
 
-init();
+// Start 3D
+init3D();
 render();
 
+// If no 3D after 3 seconds, show fallback status
+setTimeout(function() {
+if (!threeLoaded) {
+document.getElementById('sts').textContent = 'Uruchamianie 3D...';
+}
+}, 3000);
+
+// Hello
 setTimeout(function() {
 var b = document.getElementById('bbl');
 b.textContent = 'Cześć! Wpisz coś!';
 b.className = 'bubble on';
 setTimeout(function(){b.className = 'bubble'}, 3000);
-}, 1000);
+}, 1500);
 </script>
 </body>
 </html>
