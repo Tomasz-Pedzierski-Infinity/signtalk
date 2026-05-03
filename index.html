@@ -6,21 +6,20 @@
 <title>MigAvatar 3D</title>
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; }
-body { font-family: -apple-system, BlinkMacSystemFont, sans-serif; background: linear-gradient(180deg, #1a1a2e 0%, #2d2d4a 100%); color: white; min-height: 100vh; }
+body { font-family: -apple-system, BlinkMacSystemFont, sans-serif; background: linear-gradient(180deg, #1a1a2e 0%, #2d2d4a 100%); color: white; min-height: 100vh; overflow: hidden; }
 .container { max-width: 500px; margin: 0 auto; height: 100vh; display: flex; flex-direction: column; }
-header { padding: 12px; background: linear-gradient(135deg, #6366f1, #8b5cf6); text-align: center; }
+header { padding: 12px; background: linear-gradient(135deg, #6366f1, #8b5cf6); text-align: center; position: absolute; top: 0; left: 0; right: 0; z-index: 10; }
 h1 { font-size: 18px; font-weight: 800; }
-.langs { display: flex; gap: 6px; padding: 10px; background: #16162a; }
+.langs { display: flex; gap: 6px; padding: 10px; background: rgba(22,22,42,0.9); position: absolute; top: 50px; left: 0; right: 0; z-index: 10; }
 .lang { flex: 1; padding: 8px; background: #2d2d4a; border: 2px solid transparent; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer; text-align: center; color: #888; }
 .lang.active { border-color: #6366f1; color: white; }
-.avatar-box { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; min-height: 380px; }
-.bubble { background: white; color: #1a1a2e; padding: 10px 18px; border-radius: 18px; font-size: 14px; font-weight: 700; opacity: 0; transition: opacity 0.3s; margin-bottom: 10px; position: relative; }
+
+#canvas3d { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
+
+.overlay { position: absolute; bottom: 0; left: 0; right: 0; background: rgba(22,22,42,0.95); padding: 12px; border-radius: 18px 18px 0 0; z-index: 10; }
+.bubble { background: white; color: #1a1a2e; padding: 10px 18px; border-radius: 18px; font-size: 14px; font-weight: 700; text-align: center; margin-bottom: 10px; opacity: 0; transition: opacity 0.3s; }
 .bubble.show { opacity: 1; }
-.person-svg { width: 150px; height: 280px; animation: float 3s ease-in-out infinite; }
-@keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
-.sign-letter { font-size: 32px; font-weight: 800; color: #a78bfa; margin-top: 10px; text-shadow: 0 0 20px rgba(167,139,250,0.8); min-height: 40px; }
-.status { text-align: center; padding: 8px; font-size: 12px; color: #6366f1; }
-.chat-area { background: #16162a; padding: 12px; border-radius: 18px 18px 0 0; }
+.sign-letter { font-size: 32px; font-weight: 800; color: #a78bfa; text-align: center; text-shadow: 0 0 20px rgba(167,139,250,0.8); min-height: 40px; margin-bottom: 5px; }
 .input-row { display: flex; gap: 8px; margin-bottom: 8px; }
 input { flex: 1; padding: 12px 16px; border: 2px solid #3d3d5c; border-radius: 22px; background: #1a1a2e; color: white; font-size: 14px; outline: none; }
 input:focus { border-color: #6366f1; }
@@ -28,18 +27,19 @@ input::placeholder { color: #666; }
 .btn { padding: 12px 18px; border: none; border-radius: 22px; font-size: 14px; font-weight: 700; cursor: pointer; }
 .btn-send { background: linear-gradient(135deg, #6366f1, #8b5cf6); color: white; }
 .btn-voice { background: #10b981; color: white; width: 100%; margin-top: 8px; }
-.messages { max-height: 80px; overflow-y: auto; margin-bottom: 8px; }
+.messages { max-height: 60px; overflow-y: auto; margin-bottom: 8px; }
 .msg { padding: 8px 14px; border-radius: 14px; margin-bottom: 5px; font-size: 12px; }
 .msg-me { background: linear-gradient(135deg, #6366f1, #8b5cf6); margin-left: auto; max-width: 75%; }
 .msg-them { background: #2d2d4a; margin-right: auto; max-width: 75%; }
-.recording { display: none; align-items: center; justify-content: center; gap: 6px; padding: 8px; background: #fef2f2; border-radius: 10px; color: #dc2626; font-size: 12px; margin-top: 6px; }
+.status { text-align: center; padding: 5px; font-size: 11px; color: #6366f1; }
+.recording { display: none; align-items: center; justify-content: center; gap: 6px; padding: 6px; background: #fef2f2; border-radius: 10px; color: #dc2626; font-size: 11px; margin-top: 5px; }
 .recording.show { display: flex; }
-.rec-dot { width: 8px; height: 8px; background: #dc2626; border-radius: 50%; animation: blink 1s infinite; }
+.rec-dot { width: 6px; height: 6px; background: #dc2626; border-radius: 50%; animation: blink 1s infinite; }
 @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
 </style>
 </head>
 <body>
-<div class="container">
+
 <header><h1>✋ MigAvatar 3D</h1></header>
 
 <div class="langs">
@@ -48,97 +48,12 @@ input::placeholder { color: #666; }
 <div class="lang" id="langDE" onclick="setLang('de-DE')">🇩🇪 Deutsch</div>
 </div>
 
-<div class="avatar-box">
+<canvas id="canvas3d"></canvas>
+
+<div class="overlay">
 <div class="bubble" id="bubble">Cześć!</div>
-
-<!-- SVG 3D Person -->
-<svg class="person-svg" viewBox="0 0 150 280" id="personSvg">
-<defs>
-<linearGradient id="skinGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-<stop offset="0%" style="stop-color:#c4b5fd"/>
-<stop offset="100%" style="stop-color:#a78bfa"/>
-</linearGradient>
-<linearGradient id="bodyGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-<stop offset="0%" style="stop-color:#6366f1"/>
-<stop offset="100%" style="stop-color:#4f46e5"/>
-</linearGradient>
-<linearGradient id="legGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-<stop offset="0%" style="stop-color:#4338ca"/>
-<stop offset="100%" style="stop-color:#3730a3"/>
-</linearGradient>
-<filter id="glow">
-<feGaussianBlur stdDeviation="3" result="coloredBlur"/>
-<feMerge><feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/></feMerge>
-</filter>
-</defs>
-
-<!-- HEAD -->
-<ellipse cx="75" cy="35" rx="32" ry="32" fill="url(#skinGrad)" filter="url(#glow)"/>
-<!-- Eyes -->
-<ellipse cx="65" cy="30" rx="5" ry="6" fill="white"/>
-<ellipse cx="85" cy="30" rx="5" ry="6" fill="white"/>
-<circle cx="66" cy="31" r="3" fill="#1a1a2e"/>
-<circle cx="86" cy="31" r="3" fill="#1a1a2e"/>
-<!-- Smile -->
-<path d="M65 45 Q75 52 85 45" stroke="white" stroke-width="2" fill="none"/>
-
-<!-- NECK -->
-<rect x="67" y="65" width="16" height="15" fill="url(#bodyGrad)"/>
-
-<!-- BODY -->
-<path d="M45 80 L105 80 L110 170 L40 170 Z" fill="url(#bodyGrad)" rx="10"/>
-<!-- Body highlight -->
-<ellipse cx="55" cy="110" rx="8" ry="25" fill="rgba(255,255,255,0.1)"/>
-
-<!-- LEFT ARM -->
-<g id="armL" style="transform-origin: 45px 85px;">
-<path d="M45 85 L20 130 L25 135" stroke="url(#bodyGrad)" stroke-width="18" stroke-linecap="round" fill="none"/>
-</g>
-
-<!-- RIGHT ARM -->
-<g id="armR" style="transform-origin: 105px 85px;">
-<path d="M105 85 L130 130 L125 135" stroke="url(#bodyGrad)" stroke-width="18" stroke-linecap="round" fill="none"/>
-</g>
-
-<!-- LEFT HAND -->
-<g id="handL" style="transition: transform 0.3s;">
-<circle cx="22" cy="140" r="14" fill="url(#skinGrad)" filter="url(#glow)"/>
-<!-- Fingers -->
-<ellipse cx="16" cy="128" rx="4" ry="10" fill="url(#skinGrad)"/>
-<ellipse cx="22" cy="125" rx="4" ry="12" fill="url(#skinGrad)"/>
-<ellipse cx="28" cy="128" rx="4" ry="10" fill="url(#skinGrad)"/>
-</g>
-
-<!-- RIGHT HAND -->
-<g id="handR" style="transition: transform 0.3s;">
-<circle cx="128" cy="140" r="14" fill="url(#skinGrad)" filter="url(#glow)"/>
-<!-- Fingers -->
-<ellipse cx="122" cy="128" rx="4" ry="10" fill="url(#skinGrad)"/>
-<ellipse cx="128" cy="125" rx="4" ry="12" fill="url(#skinGrad)"/>
-<ellipse cx="134" cy="128" rx="4" ry="10" fill="url(#skinGrad)"/>
-</g>
-
-<!-- HIPS -->
-<path d="M45 170 L105 170 L100 200 L50 200 Z" fill="#4f46e5" rx="8"/>
-
-<!-- LEFT LEG -->
-<path d="M50 195 L45 255" stroke="url(#legGrad)" stroke-width="22" stroke-linecap="round"/>
-<ellipse cx="42" cy="262" rx="18" ry="10" fill="#3730a3"/>
-
-<!-- RIGHT LEG -->
-<path d="M100 195 L105 255" stroke="url(#legGrad)" stroke-width="22" stroke-linecap="round"/>
-<ellipse cx="108" cy="262" rx="18" ry="10" fill="#3730a3"/>
-
-<!-- SHADOW -->
-<ellipse cx="75" cy="275" rx="45" ry="8" fill="rgba(0,0,0,0.3)"/>
-</svg>
-
 <div class="sign-letter" id="signLetter"></div>
-</div>
-
 <div class="status" id="status">Gotowy</div>
-
-<div class="chat-area">
 <div class="messages" id="msgs"></div>
 <div class="input-row">
 <input type="text" id="msgInput" placeholder="Wpisz wiadomość..." maxlength="60">
@@ -147,48 +62,247 @@ input::placeholder { color: #666; }
 <button class="btn btn-voice" onclick="toggleMic()">🎤 Nagraj głos</button>
 <div class="recording" id="recInd"><span class="rec-dot"></span> Nagrywam...</div>
 </div>
-</div>
 
+<script src="https://unpkg.com/three@0.160.0/build/three.min.js"></script>
 <script>
+// ===== THREE.JS 3D AVATAR =====
+var scene, camera, renderer, person, handL, handR, armL, armR;
 var POSES = {
-A:{hL:{x:-12,y:-15},hR:{x:12,y:-15},aL:25,aR:-25},
-B:{hL:{x:0,y:-25},hR:{x:0,y:5},aL:0,aR:0},
-C:{hL:{x:18,y:0},hR:{x:-18,y:0},aL:-20,aR:20},
-D:{hL:{x:0,y:-12},hR:{x:0,y:-8},aL:12,aR:-12},
-E:{hL:{x:10,y:8},hR:{x:-10,y:8},aL:-8,aR:8},
-F:{hL:{x:-8,y:-25},hR:{x:0,y:-8},aL:8,aR:-8},
-G:{hL:{x:-25,y:8},hR:{x:-15,y:8},aL:35,aR:-20},
-H:{hL:{x:-8,y:0},hR:{x:-8,y:0},aL:18,aR:-18},
-I:{hL:{x:10,y:12},hR:{x:-10,y:-12},aL:-30,aR:30},
-J:{hL:{x:10,y:0},hR:{x:-10,y:-25},aL:-35,aR:35},
-K:{hL:{x:-8,y:-8},hR:{x:-8,y:-12},aL:12,aR:-12},
-L:{hL:{x:0,y:-30},hR:{x:-8,y:12},aL:-8,aR:8},
-M:{hL:{x:10,y:8},hR:{x:-10,y:8},aL:0,aR:0},
-N:{hL:{x:10,y:8},hR:{x:-10,y:8},aL:0,aR:0},
-O:{hL:{x:15,y:0},hR:{x:-15,y:0},aL:-12,aR:12},
-P:{hL:{x:-25,y:18},hR:{x:-8,y:-25},aL:45,aR:-45},
-Q:{hL:{x:-18,y:18},hR:{x:-8,y:-18},aL:40,aR:-40},
-R:{hL:{x:-8,y:-8},hR:{x:-8,y:-8},aL:18,aR:-18},
-S:{hL:{x:10,y:10},hR:{x:-10,y:10},aL:0,aR:0},
-T:{hL:{x:10,y:10},hR:{x:-10,y:10},aL:0,aR:0},
-U:{hL:{x:-8,y:0},hR:{x:-8,y:0},aL:0,aR:0},
-V:{hL:{x:-8,y:-8},hR:{x:-8,y:-8},aL:0,aR:0},
-W:{hL:{x:-8,y:-12},hR:{x:-8,y:-12},aL:0,aR:0},
-X:{hL:{x:10,y:8},hR:{x:-10,y:-8},aL:8,aR:-8},
-Y:{hL:{x:-30,y:8},hR:{x:30,y:8},aL:50,aR:-50},
-Z:{hL:{x:10,y:8},hR:{x:-10,y:-12},aL:0,aR:-25}
+A:{hL:{x:-0.8,y:0.5},hR:{x:0.8,y:0.5},aL:0.5,aR:-0.5},
+B:{hL:{x:0,y:0.8},hR:{x:0,y:-0.3},aL:0,aR:0},
+C:{hL:{x:-0.6,y:0},hR:{x:0.6,y:0},aL:-0.4,aR:0.4},
+D:{hL:{x:0,y:0.4},hR:{x:0,y:0.2},aL:0.3,aR:-0.3},
+E:{hL:{x:-0.4,y:-0.3},hR:{x:0.4,y:-0.3},aL:-0.2,aR:0.2},
+F:{hL:{x:0.3,y:0.8},hR:{x:0,y:0.2},aL:0.2,aR:-0.2},
+G:{hL:{x:0.8,y:-0.3},hR:{x:0.5,y:-0.3},aL:0.8,aR:-0.5},
+H:{hL:{x:0.2,y:0},hR:{x:0.2,y:0},aL:0.4,aR:-0.4},
+I:{hL:{x:-0.4,y:-0.5},hR:{x:0.4,y:0.5},aL:-0.7,aR:0.7},
+J:{hL:{x:-0.4,y:0},hR:{x:0.4,y:0.8},aL:-0.9,aR:0.9},
+K:{hL:{x:0.3,y:0.3},hR:{x:0.3,y:0.5},aL:0.3,aR:-0.3},
+L:{hL:{x:0,y:1},hR:{x:0.3,y:-0.5},aL:-0.2,aR:0.2},
+M:{hL:{x:-0.3,y:-0.3},hR:{x:0.3,y:-0.3},aL:0,aR:0},
+N:{hL:{x:-0.3,y:-0.3},hR:{x:0.3,y:-0.3},aL:0,aR:0},
+O:{hL:{x:-0.6,y:0},hR:{x:0.6,y:0},aL:-0.3,aR:0.3},
+P:{hL:{x:0.8,y:-0.7},hR:{x:0.3,y:0.8},aL:1.2,aR:-1.2},
+Q:{hL:{x:0.6,y:-0.7},hR:{x:0.3,y:0.6},aL:1,aR:-1},
+R:{hL:{x:0.3,y:0.3},hR:{x:0.3,y:0.3},aL:0.5,aR:-0.5},
+S:{hL:{x:-0.3,y:-0.4},hR:{x:0.3,y:-0.4},aL:0,aR:0},
+T:{hL:{x:-0.3,y:-0.4},hR:{x:0.3,y:-0.4},aL:0,aR:0},
+U:{hL:{x:-0.3,y:0},hR:{x:-0.3,y:0},aL:0,aR:0},
+V:{hL:{x:-0.3,y:0.3},hR:{x:-0.3,y:0.3},aL:0,aR:0},
+W:{hL:{x:-0.3,y:0.5},hR:{x:-0.3,y:0.5},aL:0,aR:0},
+X:{hL:{x:-0.3,y:-0.3},hR:{x:0.3,y:0.3},aL:0.2,aR:-0.2},
+Y:{hL:{x:1,y:-0.3},hR:{x:-1,y:-0.3},aL:1.3,aR:-1.3},
+Z:{hL:{x:-0.3,y:-0.3},hR:{x:0.3,y:0.5},aL:0,aR:-0.6}
 };
 
-var handL = document.getElementById('handL');
-var handR = document.getElementById('handR');
-var armL = document.getElementById('armL');
-var armR = document.getElementById('armR');
-var bubble = document.getElementById('bubble');
-var signLetter = document.getElementById('signLetter');
-var msgInput = document.getElementById('msgInput');
-var msgs = document.getElementById('msgs');
-var statusEl = document.getElementById('status');
-var recInd = document.getElementById('recInd');
+function init3D() {
+var canvas = document.getElementById('canvas3d');
+scene = new THREE.Scene();
+camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 1000);
+camera.position.set(0, 1.5, 5);
+camera.lookAt(0, 1, 0);
+
+renderer = new THREE.WebGLRenderer({ canvas: canvas, alpha: true, antialias: true });
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.setPixelRatio(window.devicePixelRatio);
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+
+// Lights
+var ambient = new THREE.AmbientLight(0x6366f1, 0.6);
+scene.add(ambient);
+var sun = new THREE.DirectionalLight(0xffffff, 1);
+sun.position.set(5, 10, 5);
+sun.castShadow = true;
+scene.add(sun);
+var fill = new THREE.DirectionalLight(0x8b5cf6, 0.4);
+fill.position.set(-5, 3, -5);
+scene.add(fill);
+
+// Materials
+var skinMat = new THREE.MeshPhongMaterial({ color: 0xc4b5fd, shininess: 30 });
+var bodyMat = new THREE.MeshPhongMaterial({ color: 0x6366f1, shininess: 50 });
+var legMat = new THREE.MeshPhongMaterial({ color: 0x4338ca, shininess: 30 });
+
+person = new THREE.Group();
+
+// HEAD
+var headGeo = new THREE.SphereGeometry(0.35, 32, 32);
+var head = new THREE.Mesh(headGeo, skinMat);
+head.position.y = 2.8;
+head.castShadow = true;
+person.add(head);
+
+// EYES
+var eyeGeo = new THREE.SphereGeometry(0.06, 16, 16);
+var eyeMat = new THREE.MeshPhongMaterial({ color: 0xffffff });
+var eyeL = new THREE.Mesh(eyeGeo, eyeMat);
+eyeL.position.set(-0.12, 2.88, 0.28);
+person.add(eyeL);
+var eyeR = new THREE.Mesh(eyeGeo, eyeMat);
+eyeR.position.set(0.12, 2.88, 0.28);
+person.add(eyeR);
+// Pupils
+var pupilGeo = new THREE.SphereGeometry(0.03, 12, 12);
+var pupilMat = new THREE.MeshPhongMaterial({ color: 0x1a1a2e });
+var pupilL = new THREE.Mesh(pupilGeo, pupilMat);
+pupilL.position.set(-0.12, 2.88, 0.33);
+person.add(pupilL);
+var pupilR = new THREE.Mesh(pupilGeo, pupilMat);
+pupilR.position.set(0.12, 2.88, 0.33);
+person.add(pupilR);
+
+// NECK
+var neckGeo = new THREE.CylinderGeometry(0.12, 0.15, 0.2, 16);
+var neck = new THREE.Mesh(neckGeo, bodyMat);
+neck.position.y = 2.4;
+person.add(neck);
+
+// TORSO
+var torsoGeo = new THREE.CylinderGeometry(0.35, 0.3, 1, 16);
+var torso = new THREE.Mesh(torsoGeo, bodyMat);
+torso.position.y = 1.7;
+torso.castShadow = true;
+person.add(torso);
+
+// HIPS
+var hipsGeo = new THREE.CylinderGeometry(0.3, 0.28, 0.4, 16);
+var hips = new THREE.Mesh(hipsGeo, legMat);
+hips.position.y = 1.1;
+person.add(hips);
+
+// ARMS
+armL = new THREE.Group();
+armL.position.set(-0.45, 2.1, 0);
+var upperArmGeo = new THREE.CylinderGeometry(0.08, 0.08, 0.5, 12);
+var upperArmL = new THREE.Mesh(upperArmGeo, bodyMat);
+upperArmL.position.y = -0.25;
+armL.add(upperArmL);
+var foreArmGeo = new THREE.CylinderGeometry(0.07, 0.06, 0.45, 12);
+var foreArmL = new THREE.Mesh(foreArmGeo, bodyMat);
+foreArmL.position.y = -0.7;
+armL.add(foreArmL);
+handL = new THREE.Group();
+var handGeo = new THREE.SphereGeometry(0.1, 16, 16);
+var handMeshL = new THREE.Mesh(handGeo, skinMat);
+handL.add(handMeshL);
+// Fingers
+for(var i=0; i<3; i++) {
+var fingerGeo = new THREE.CylinderGeometry(0.02, 0.015, 0.12, 8);
+var finger = new THREE.Mesh(fingerGeo, skinMat);
+finger.position.set(-0.04 + i*0.04, 0.12, 0);
+finger.rotation.z = (i-1)*0.2;
+handL.add(finger);
+}
+handL.position.y = -0.95;
+armL.add(handL);
+person.add(armL);
+
+armR = new THREE.Group();
+armR.position.set(0.45, 2.1, 0);
+var upperArmR = new THREE.Mesh(upperArmGeo, bodyMat);
+upperArmR.position.y = -0.25;
+armR.add(upperArmR);
+var foreArmR = new THREE.Mesh(foreArmGeo, bodyMat);
+foreArmR.position.y = -0.7;
+armR.add(foreArmR);
+handR = new THREE.Group();
+var handMeshR = new THREE.Mesh(new THREE.SphereGeometry(0.1, 16, 16), skinMat);
+handR.add(handMeshR);
+for(var i=0; i<3; i++) {
+var finger = new THREE.Mesh(new THREE.CylinderGeometry(0.02, 0.015, 0.12, 8), skinMat);
+finger.position.set(-0.04 + i*0.04, 0.12, 0);
+finger.rotation.z = (i-1)*0.2;
+handR.add(finger);
+}
+handR.position.y = -0.95;
+armR.add(handR);
+person.add(armR);
+
+// LEGS
+var legGeo = new THREE.CylinderGeometry(0.1, 0.08, 1, 12);
+var legL = new THREE.Mesh(legGeo, legMat);
+legL.position.set(-0.15, 0.4, 0);
+legL.castShadow = true;
+person.add(legL);
+var legR = new THREE.Mesh(legGeo, legMat);
+legR.position.set(0.15, 0.4, 0);
+legR.castShadow = true;
+person.add(legR);
+
+// FEET
+var footGeo = new THREE.BoxGeometry(0.15, 0.08, 0.25);
+var footMat = new THREE.MeshPhongMaterial({ color: 0x3730a3 });
+var footL = new THREE.Mesh(footGeo, footMat);
+footL.position.set(-0.15, -0.05, 0.05);
+person.add(footL);
+var footR = new THREE.Mesh(footGeo, footMat);
+footR.position.set(0.15, -0.05, 0.05);
+person.add(footR);
+
+// FLOOR SHADOW
+var shadowGeo = new THREE.PlaneGeometry(1.5, 0.5);
+var shadowMat = new THREE.MeshBasicMaterial({ color: 0x000000, transparent: true, opacity: 0.2 });
+var shadow = new THREE.Mesh(shadowGeo, shadowMat);
+shadow.rotation.x = -Math.PI / 2;
+shadow.position.y = -0.1;
+scene.add(shadow);
+
+scene.add(person);
+person.position.y = -0.8;
+
+// Resize
+window.addEventListener('resize', function() {
+camera.aspect = window.innerWidth / window.innerHeight;
+camera.updateProjectionMatrix();
+renderer.setSize(window.innerWidth, window.innerHeight);
+});
+
+animate();
+}
+
+function animate() {
+requestAnimationFrame(animate);
+if (person) {
+person.rotation.y += 0.003;
+person.position.y = -0.8 + Math.sin(Date.now()*0.001)*0.05;
+}
+renderer.render(scene, camera);
+}
+
+function applyPose(pose) {
+handL.position.x = pose.hL.x;
+handL.position.y = -0.95 + pose.hL.y;
+handR.position.x = pose.hR.x;
+handR.position.y = -0.95 + pose.hR.y;
+armL.rotation.z = pose.aL;
+armR.rotation.z = pose.aR;
+}
+
+function showSign(text) {
+var chars = text.toUpperCase().split('').filter(function(c){return /[A-Z]/.test(c)});
+if (!chars.length) return;
+var i = 0;
+document.getElementById('signLetter').textContent = '';
+function next() {
+if (i >= chars.length) {
+document.getElementById('signLetter').textContent = '';
+applyPose(POSES['A']);
+return;
+}
+var pose = POSES[chars[i]] || POSES['A'];
+applyPose(pose);
+document.getElementById('signLetter').textContent = chars[i];
+i++;
+setTimeout(next, 700);
+}
+next();
+}
+
+init3D();
+
+// ===== CHAT =====
 var lang = 'pl-PL';
 var rec = null;
 var isRec = false;
@@ -201,33 +315,6 @@ document.getElementById('langDE').className = 'lang' + (l==='de-DE'?' active':''
 if (rec) rec.lang = l;
 }
 
-function applyPose(pose) {
-handL.style.transform = 'translate(' + pose.hL.x + 'px,' + pose.hL.y + 'px)';
-handR.style.transform = 'translate(' + pose.hR.x + 'px,' + pose.hR.y + 'px)';
-armL.style.transform = 'rotate(' + pose.aL + 'deg)';
-armR.style.transform = 'rotate(' + pose.aR + 'deg)';
-}
-
-function showSign(text) {
-var chars = text.toUpperCase().split('').filter(function(c){return /[A-Z]/.test(c)});
-if (!chars.length) return;
-var i = 0;
-signLetter.textContent = '';
-function next() {
-if (i >= chars.length) {
-signLetter.textContent = '';
-applyPose(POSES['A']);
-return;
-}
-var pose = POSES[chars[i]] || POSES['A'];
-applyPose(pose);
-signLetter.textContent = chars[i];
-i++;
-setTimeout(next, 700);
-}
-next();
-}
-
 function addMsg(text, me) {
 var d = document.createElement('div');
 d.className = 'msg ' + (me ? 'msg-me' : 'msg-them');
@@ -236,13 +323,17 @@ msgs.appendChild(d);
 msgs.scrollTop = msgs.scrollHeight;
 }
 
+var msgs = document.getElementById('msgs');
+var statusEl = document.getElementById('status');
+
 function sendMsg() {
-var text = msgInput.value.trim();
+var text = document.getElementById('msgInput').value.trim();
 if (!text) return;
 addMsg(text, true);
+var bubble = document.getElementById('bubble');
 bubble.textContent = text;
 bubble.classList.add('show');
-msgInput.value = '';
+document.getElementById('msgInput').value = '';
 setTimeout(function(){bubble.classList.remove('show')}, 2500);
 
 try {
@@ -268,7 +359,7 @@ if (!rec) {
 rec = new SR();
 rec.lang = lang;
 rec.onresult = function(e) {
-msgInput.value = e.results[0][0].transcript.toUpperCase();
+document.getElementById('msgInput').value = e.results[0][0].transcript.toUpperCase();
 sendMsg();
 };
 rec.onerror = function(e) {
@@ -281,7 +372,7 @@ if (isRec) { stopMic(); }
 else {
 rec.start();
 isRec = true;
-recInd.classList.add('show');
+document.getElementById('recInd').classList.add('show');
 statusEl.textContent = 'Słucham...';
 }
 } catch(e) { statusEl.textContent = 'Mikrofon niedostępny'; }
@@ -289,20 +380,22 @@ statusEl.textContent = 'Słucham...';
 
 function stopMic() {
 isRec = false;
-recInd.classList.remove('show');
+document.getElementById('recInd').classList.remove('show');
 try { rec.stop(); } catch(e) {}
 statusEl.textContent = 'Gotowy';
 }
 
-msgInput.addEventListener('keypress', function(e) {
+document.getElementById('msgInput').addEventListener('keypress', function(e) {
 if (e.key === 'Enter') sendMsg();
 });
 
+// Hello
 setTimeout(function() {
+var bubble = document.getElementById('bubble');
 bubble.textContent = 'Cześć! Wpisz coś!';
 bubble.classList.add('show');
 setTimeout(function(){bubble.classList.remove('show')}, 3000);
-}, 500);
+}, 1000);
 </script>
 </body>
 </html>
