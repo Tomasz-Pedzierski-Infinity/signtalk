@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>SignTalk</title>
+</head>
+<body style="font-family: Arial; margin: 0; padding: 20px; background: white;">
+<h1 style="color: #6366F1;">✋ SignTalk</h1>
+<p style="color: #666;">Wpisz słowo:</p>
+<input type="text" id="word" placeholder="np. TOMEK" style="width: 100%; padding: 15px; font-size: 20px; border: 2px solid #6366F1; border-radius: 10px; text-transform: uppercase;">
+<br><br>
+<button onclick="show()" style="width: 100%; padding: 20px; font-size: 18px; background: #6366F1; color: white; border: none; border-radius: 10px; cursor: pointer;">✋ POKAŻ ZNAKI MIGOWE</button>
+<br><br>
+<button onclick="speak()" style="width: 100%; padding: 20px; font-size: 18px; background: #10B981; color: white; border: none; border-radius: 10px; cursor: pointer;">🔊 GŁOS</button>
+<br><br>
+<button onclick="listen()" style="width: 100%; padding: 20px; font-size: 18px; background: #0EA5E9; color: white; border: none; border-radius: 10px; cursor: pointer;">🎤 NAGRAJ GŁOS</button>
+<div id="result" style="margin-top: 20px; text-align: center; font-size: 48px;"></div>
+<div id="error" style="color: red; margin-top: 10px;"></div>
+<script>
+var SIGNS = {A:'✋',B:'👆',C:'🤟',D:'👇',E:'🤚',F:'✌️',G:'👌',H:'🤙',I:'☝️',J:'☝️',K:'🤲',L:'🖐️',M:'✊',N:'🤌',O:'👌',P:'🤜',Q:'🤏',R:'🤙',S:'✋',T:'🤚',U:'🖐️',V:'✌️',W:'🤞',X:'🤞',Y:'✋',Z:'🤟'};
+var rec = null;
+var isRec = false;
+try {
+var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+rec = new SR();
+rec.lang = 'pl-PL';
+rec.onresult = function(e) { document.getElementById('word').value = e.results[0][0].transcript.toUpperCase(); show(); };
+rec.onerror = function(e) { document.getElementById('error').innerHTML = 'Błąd: ' + e.error; };
+rec.onend = function() { isRec = false; document.getElementById('error').innerHTML = ''; };
+} catch(e) { document.getElementById('error').innerHTML = 'Mikrofon niedostępny'; }
+function show() {
+var text = document.getElementById('word').value.toUpperCase().replace(/[^A-Z]/g,'');
+if(!text) { document.getElementById('error').innerHTML = 'Wpisz słowo!'; return; }
+document.getElementById('error').innerHTML = '';
+var result = document.getElementById('result');
+result.innerHTML = '';
+text.split('').forEach(function(c,i) {
+setTimeout(function() { result.innerHTML = '<div style="font-size:80px">' + (SIGNS[c]||'?') + '</div><div style="font-size:40px;color:#6366F1">' + c + '</div>'; }, i*800);
+});
+}
+function speak() {
+var text = document.getElementById('word').value;
+if(!text) { document.getElementById('error').innerHTML = 'Wpisz słowo!'; return; }
+var u = new SpeechSynthesisUtterance(text);
+u.lang = 'pl-PL';
+speechSynthesis.speak(u);
+}
+function listen() {
+if(!rec) { document.getElementById('error').innerHTML = 'Mikrofon niedostępny'; return; }
+if(isRec) { rec.stop(); isRec = false; return; }
+isRec = true;
+rec.start();
+document.getElementById('error').innerHTML = '🎤 Mów...';
+}
+</script>
+</body>
+</html>
