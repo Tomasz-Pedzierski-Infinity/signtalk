@@ -3,18 +3,18 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>MigAvatar 3D - Prawdziwy Avatar</title>
+<title>MigAvatar 3D</title>
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; }
 html, body { width: 100%; height: 100%; overflow: hidden; }
 body { font-family: -apple-system, BlinkMacSystemFont, sans-serif; background: linear-gradient(180deg, #1a1a2e 0%, #2d2d4a 100%); color: white; }
-#c { width: 100%; height: 100%; display: block; }
-.top { position: absolute; top: 0; left: 0; right: 0; padding: 10px 15px; background: linear-gradient(135deg, #6366f1, #8b5cf6); z-index: 10; display: flex; justify-content: space-between; align-items: center; }
+#c { width: 100%; height: 100%; display: block; position: absolute; top: 0; left: 0; z-index: 1; }
+.top { position: absolute; top: 0; left: 0; right: 0; padding: 10px 15px; background: linear-gradient(135deg, #6366f1, #8b5cf6); z-index: 20; display: flex; justify-content: space-between; align-items: center; }
 .top h1 { font-size: 16px; }
 .langs { display: flex; gap: 5px; }
 .lang { padding: 6px 10px; background: rgba(255,255,255,0.15); border: none; border-radius: 8px; font-size: 11px; color: white; cursor: pointer; }
 .lang.on { background: rgba(255,255,255,0.35); }
-.bottom { position: absolute; bottom: 0; left: 0; right: 0; background: rgba(22,22,42,0.95); padding: 10px; z-index: 10; border-radius: 18px 18px 0 0; }
+.bottom { position: absolute; bottom: 0; left: 0; right: 0; background: rgba(22,22,42,0.95); padding: 10px; z-index: 20; border-radius: 18px 18px 0 0; }
 .bubble { background: white; color: #1a1a2e; padding: 8px 16px; border-radius: 15px; font-size: 13px; font-weight: 700; text-align: center; margin-bottom: 8px; opacity: 0; transition: opacity 0.3s; }
 .bubble.on { opacity: 1; }
 .letter { font-size: 28px; font-weight: 800; color: #a78bfa; text-align: center; text-shadow: 0 0 15px rgba(167,139,250,0.8); min-height: 35px; }
@@ -34,6 +34,15 @@ button { padding: 10px 14px; border: none; border-radius: 20px; font-size: 13px;
 .rec.on { display: flex; }
 .rec span { width: 6px; height: 6px; background: #dc2626; border-radius: 50%; animation: b 1s infinite; }
 @keyframes b { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+/* FALLBACK 2D AVATAR */
+#fallback { display: none; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 5; }
+#fallback.show { display: block; }
+#fallback svg { width: 150px; height: 280px; animation: float 3s ease-in-out infinite; }
+@keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
+
+.debug-log { display: none; position: absolute; top: 60px; left: 0; right: 0; background: rgba(0,0,0,0.8); color: #0f0; font-size: 10px; padding: 5px; z-index: 100; max-height: 80px; overflow-y: auto; }
+.debug-log.show { display: block; }
 </style>
 </head>
 <body>
@@ -49,10 +58,39 @@ button { padding: 10px 14px; border: none; border-radius: 20px; font-size: 13px;
 
 <canvas id="c"></canvas>
 
+<!-- FALLBACK 2D SVG AVATAR -->
+<div id="fallback">
+<svg viewBox="0 0 150 280">
+<defs>
+<linearGradient id="sg" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#c4b5fd"/><stop offset="100%" style="stop-color:#a78bfa"/></linearGradient>
+<linearGradient id="bg" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" style="stop-color:#6366f1"/><stop offset="100%" style="stop-color:#4f46e5"/></linearGradient>
+<linearGradient id="lg" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" style="stop-color:#4338ca"/><stop offset="100%" style="stop-color:#3730a3"/></linearGradient>
+</defs>
+<ellipse cx="75" cy="35" rx="32" ry="32" fill="url(#sg)"/>
+<ellipse cx="65" cy="30" rx="5" ry="6" fill="white"/><ellipse cx="85" cy="30" rx="5" ry="6" fill="white"/>
+<circle cx="66" cy="31" r="3" fill="#1a1a2e"/><circle cx="86" cy="31" r="3" fill="#1a1a2e"/>
+<path d="M65 45 Q75 52 85 45" stroke="white" stroke-width="2" fill="none"/>
+<rect x="67" y="65" width="16" height="15" fill="url(#bg)"/>
+<path d="M45 80 L105 80 L110 170 L40 170 Z" fill="url(#bg)"/>
+<g id="armL" style="transform-origin: 45px 85px;"><path d="M45 85 L20 130 L25 135" stroke="url(#bg)" stroke-width="18" stroke-linecap="round" fill="none"/></g>
+<g id="armR" style="transform-origin: 105px 85px;"><path d="M105 85 L130 130 L125 135" stroke="url(#bg)" stroke-width="18" stroke-linecap="round" fill="none"/></g>
+<g id="handL"><circle cx="22" cy="140" r="14" fill="url(#sg)"/><ellipse cx="16" cy="128" rx="4" ry="10" fill="url(#sg)"/><ellipse cx="22" cy="125" rx="4" ry="12" fill="url(#sg)"/><ellipse cx="28" cy="128" rx="4" ry="10" fill="url(#sg)"/></g>
+<g id="handR"><circle cx="128" cy="140" r="14" fill="url(#sg)"/><ellipse cx="122" cy="128" rx="4" ry="10" fill="url(#sg)"/><ellipse cx="128" cy="125" rx="4" ry="12" fill="url(#sg)"/><ellipse cx="134" cy="128" rx="4" ry="10" fill="url(#sg)"/></g>
+<path d="M45 170 L105 170 L100 200 L50 200 Z" fill="#4f46e5"/>
+<path d="M50 195 L45 255" stroke="url(#lg)" stroke-width="22" stroke-linecap="round"/>
+<path d="M100 195 L105 255" stroke="url(#lg)" stroke-width="22" stroke-linecap="round"/>
+<ellipse cx="42" cy="262" rx="18" ry="10" fill="#3730a3"/>
+<ellipse cx="108" cy="262" rx="18" ry="10" fill="#3730a3"/>
+<ellipse cx="75" cy="275" rx="45" ry="8" fill="rgba(0,0,0,0.3)"/>
+</svg>
+</div>
+
+<div class="debug-log" id="debugLog"></div>
+
 <div class="bottom">
 <div class="bubble" id="bbl">Cześć!</div>
 <div class="letter" id="ltr"></div>
-<div class="status" id="sts">ŁADUJĘ AVATARA...</div>
+<div class="status" id="sts">ŁADUJĘ...</div>
 <div class="msgs" id="msgs"></div>
 <div class="row">
 <input id="inp" placeholder="Wpisz wiadomość..." maxlength="50">
@@ -65,6 +103,15 @@ button { padding: 10px 14px; border: none; border-radius: 20px; font-size: 13px;
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
 var scene, camera, renderer, person, handL, handR, armL, armR;
+var use3D = false;
+var use2D = false;
+
+function log(t) {
+console.log(t);
+var d = document.getElementById('debugLog');
+if (d) d.textContent = t;
+}
+
 var POSES = {
 A:{hLx:-0.8,hLy:0.5,hRx:0.8,hRy:0.5,aLz:0.5,aRz:-0.5},
 B:{hLx:0,hLy:0.8,hRx:0,hRy:-0.3,aLz:0,aRz:0},
@@ -98,7 +145,6 @@ var lang = 'pl-PL';
 var rec = null;
 var recOn = false;
 var msgsEl = document.getElementById('msgs');
-var threeLoaded = false;
 
 function setLangs() {
 document.getElementById('btnPL').className = 'lang' + (lang==='pl-PL'?' on':'');
@@ -108,8 +154,17 @@ if (rec) rec.lang = lang;
 }
 
 function init3D() {
+log('Init 3D...');
 try {
 var canvas = document.getElementById('c');
+if (!canvas) { log('No canvas'); fallback2D(); return; }
+
+// Check WebGL
+var testCanvas = document.createElement('canvas');
+var gl = testCanvas.getContext('webgl') || testCanvas.getContext('experimental-webgl');
+if (!gl) { log('No WebGL'); fallback2D(); return; }
+log('WebGL OK');
+
 scene = new THREE.Scene();
 scene.background = null;
 
@@ -121,30 +176,22 @@ renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true, alpha: tru
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
-// Light
 var a = new THREE.AmbientLight(0xffffff, 0.5);
 scene.add(a);
 var d = new THREE.DirectionalLight(0xffffff, 1);
 d.position.set(3, 7, 5);
 scene.add(d);
-var d2 = new THREE.DirectionalLight(0x8b5cf6, 0.3);
-d2.position.set(-3, 3, -3);
-scene.add(d2);
 
-// Person group
 person = new THREE.Group();
 
-// Skin material
 var skin = new THREE.MeshPhongMaterial({ color: 0xc4b5fd, shininess: 40 });
 var body = new THREE.MeshPhongMaterial({ color: 0x6366f1, shininess: 60 });
 var leg = new THREE.MeshPhongMaterial({ color: 0x4338ca, shininess: 40 });
 
-// HEAD
 var head = new THREE.Mesh(new THREE.SphereGeometry(0.4, 32, 32), skin);
 head.position.y = 3;
 person.add(head);
 
-// EYES
 var eyeW = new THREE.MeshPhongMaterial({ color: 0xffffff });
 var eyeB = new THREE.MeshPhongMaterial({ color: 0x1a1a2e });
 var e1 = new THREE.Mesh(new THREE.SphereGeometry(0.07, 16, 16), eyeW);
@@ -160,76 +207,43 @@ var p2 = new THREE.Mesh(new THREE.SphereGeometry(0.04, 12, 12), eyeB);
 p2.position.set(0.15, 3.1, 0.4);
 person.add(p2);
 
-// SMILE
-var smile = new THREE.Mesh(
-new THREE.TorusGeometry(0.1, 0.02, 8, 16, Math.PI),
-new THREE.MeshPhongMaterial({ color: 0xffffff })
-);
+var smile = new THREE.Mesh(new THREE.TorusGeometry(0.1, 0.02, 8, 16, Math.PI), new THREE.MeshPhongMaterial({ color: 0xffffff }));
 smile.position.set(0, 2.85, 0.35);
 smile.rotation.z = Math.PI;
 person.add(smile);
 
-// NECK
 var neck = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.15, 0.25, 16), body);
 neck.position.y = 2.55;
 person.add(neck);
 
-// TORSO
 var torso = new THREE.Mesh(new THREE.CylinderGeometry(0.4, 0.35, 1.1, 24), body);
 torso.position.y = 1.85;
 person.add(torso);
 
-// HIPS
 var hips = new THREE.Mesh(new THREE.CylinderGeometry(0.35, 0.3, 0.4, 20), leg);
 hips.position.y = 1.2;
 person.add(hips);
 
-// LEFT ARM GROUP
 armL = new THREE.Group();
 armL.position.set(-0.5, 2.35, 0);
-var uAL = new THREE.Mesh(new THREE.CylinderGeometry(0.09, 0.08, 0.55, 12), body);
-uAL.position.y = -0.275;
-armL.add(uAL);
-var fAL = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.07, 0.5, 12), body);
-fAL.position.y = -0.8;
-armL.add(fAL);
+armL.add(new THREE.Mesh(new THREE.CylinderGeometry(0.09, 0.08, 0.55, 12), body));
+armL.add((new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.07, 0.5, 12), body)).translate(0,-0.8,0));
 handL = new THREE.Group();
 handL.position.y = -1.1;
-var hL = new THREE.Mesh(new THREE.SphereGeometry(0.12, 16, 16), skin);
-handL.add(hL);
-// fingers
-for(var i=0; i<3; i++) {
-var f = new THREE.Mesh(new THREE.CylinderGeometry(0.025, 0.02, 0.15, 8), skin);
-f.position.set(-0.04+i*0.04, 0.15, 0);
-f.rotation.z = (i-1)*0.3;
-handL.add(f);
-}
+handL.add(new THREE.Mesh(new THREE.SphereGeometry(0.12, 16, 16), skin));
 armL.add(handL);
 person.add(armL);
 
-// RIGHT ARM GROUP
 armR = new THREE.Group();
 armR.position.set(0.5, 2.35, 0);
-var uAR = new THREE.Mesh(new THREE.CylinderGeometry(0.09, 0.08, 0.55, 12), body);
-uAR.position.y = -0.275;
-armR.add(uAR);
-var fAR = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.07, 0.5, 12), body);
-fAR.position.y = -0.8;
-armR.add(fAR);
+armR.add(new THREE.Mesh(new THREE.CylinderGeometry(0.09, 0.08, 0.55, 12), body));
+armR.add((new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.07, 0.5, 12), body)).translate(0,-0.8,0));
 handR = new THREE.Group();
 handR.position.y = -1.1;
-var hR = new THREE.Mesh(new THREE.SphereGeometry(0.12, 16, 16), skin);
-handR.add(hR);
-for(var i=0; i<3; i++) {
-var f = new THREE.Mesh(new THREE.CylinderGeometry(0.025, 0.02, 0.15, 8), skin);
-f.position.set(-0.04+i*0.04, 0.15, 0);
-f.rotation.z = (i-1)*0.3;
-handR.add(f);
-}
+handR.add(new THREE.Mesh(new THREE.SphereGeometry(0.12, 16, 16), skin));
 armR.add(handR);
 person.add(armR);
 
-// LEGS
 var lL = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.1, 1.1, 16), leg);
 lL.position.set(-0.18, 0.45, 0);
 person.add(lL);
@@ -237,7 +251,6 @@ var lR = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.1, 1.1, 16), leg);
 lR.position.set(0.18, 0.45, 0);
 person.add(lR);
 
-// FEET
 var ft = new THREE.MeshPhongMaterial({ color: 0x3730a3 });
 var fL = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.1, 0.3), ft);
 fL.position.set(-0.18, -0.08, 0.06);
@@ -247,6 +260,7 @@ fR.position.set(0.18, -0.08, 0.06);
 person.add(fR);
 
 scene.add(person);
+log('3D person created');
 
 window.addEventListener('resize', function() {
 camera.aspect = window.innerWidth / window.innerHeight;
@@ -254,15 +268,25 @@ camera.updateProjectionMatrix();
 renderer.setSize(window.innerWidth, window.innerHeight);
 });
 
-threeLoaded = true;
+use3D = true;
+log('3D OK!');
 document.getElementById('sts').textContent = '✓ Avatar 3D załadowany!';
+render3D();
 } catch(e) {
-document.getElementById('sts').textContent = 'Błąd 3D: ' + e.message;
+log('3D Error: ' + e.message);
+fallback2D();
 }
 }
 
-function render() {
-requestAnimationFrame(render);
+function fallback2D() {
+log('Using 2D fallback');
+use2D = true;
+document.getElementById('fallback').classList.add('show');
+document.getElementById('sts').textContent = '✓ Avatar 2D załadowany';
+}
+
+function render3D() {
+requestAnimationFrame(render3D);
 if (person) {
 person.rotation.y += 0.005;
 person.position.y = -0.7 + Math.sin(Date.now()*0.001)*0.08;
@@ -270,21 +294,31 @@ person.position.y = -0.7 + Math.sin(Date.now()*0.001)*0.08;
 if (renderer) renderer.render(scene, camera);
 }
 
+function pose2D(p) {
+var hL = document.getElementById('handL');
+var hR = document.getElementById('handR');
+var aL = document.getElementById('armL');
+var aR = document.getElementById('armR');
+if (hL) hL.style.transform = 'translate(' + (p.hLx*20) + 'px,' + (p.hLy*20) + 'px)';
+if (hR) hR.style.transform = 'translate(' + (p.hRx*20) + 'px,' + (p.hRy*20) + 'px)';
+if (aL) aL.style.transform = 'rotate(' + (p.aLz*20) + 'deg)';
+if (aR) aR.style.transform = 'rotate(' + (p.aRz*20) + 'deg)';
+}
+
 function pose(p) {
-if (!handL) return;
+if (use3D && handL) {
 handL.position.x = p.hLx;
 handL.position.y = -1.1 + p.hLy;
 handR.position.x = p.hRx;
 handR.position.y = -1.1 + p.hRy;
 armL.rotation.z = p.aLz;
 armR.rotation.z = p.aRz;
+} else if (use2D) {
+pose2D(p);
+}
 }
 
 function sign(txt) {
-if (!threeLoaded) {
-document.getElementById('sts').textContent = 'Poczekaj na załadowanie...';
-return;
-}
 var c = txt.toUpperCase().split('').filter(function(x){return /[A-Z]/.test(x)});
 if (!c.length) return;
 document.getElementById('ltr').textContent = '';
@@ -323,7 +357,7 @@ document.getElementById('sts').textContent = 'Pokazuję Migi...';
 setTimeout(function() {
 var r = ['Rozumiem!','Ok!','Dzięki!','Jasne!'];
 add(r[Math.floor(Math.random()*r.length)], false);
-document.getElementById('sts').textContent = '✓ Gotowe';
+document.getElementById('sts').textContent = use3D ? '✓ Avatar 3D' : '✓ Avatar 2D';
 }, 1500);
 }
 
@@ -348,28 +382,25 @@ document.getElementById('sts').textContent = 'Słucham...';
 }
 } catch(e) { document.getElementById('sts').textContent = 'Mikrofon niedostępny'; }
 }
-function stopM() { recOn = false; document.getElementById('rec').className = 'rec'; try { rec.stop(); } catch(e) {} document.getElementById('sts').textContent = '✓ Gotowe'; }
+function stopM() { recOn = false; document.getElementById('rec').className = 'rec'; try { rec.stop(); } catch(e) {} document.getElementById('sts').textContent = use3D ? '✓ Avatar 3D' : '✓ Avatar 2D'; }
 
 document.getElementById('inp').addEventListener('keypress', function(e) { if (e.key === 'Enter') snd(); });
 
-// Start 3D
+// Check if Three.js loaded
+if (typeof THREE === 'undefined') {
+log('Three.js NOT loaded');
+fallback2D();
+} else {
+log('Three.js loaded: ' + typeof THREE);
 init3D();
-render();
-
-// If no 3D after 3 seconds, show fallback status
-setTimeout(function() {
-if (!threeLoaded) {
-document.getElementById('sts').textContent = 'Uruchamianie 3D...';
 }
-}, 3000);
 
-// Hello
 setTimeout(function() {
 var b = document.getElementById('bbl');
 b.textContent = 'Cześć! Wpisz coś!';
 b.className = 'bubble on';
 setTimeout(function(){b.className = 'bubble'}, 3000);
-}, 1500);
+}, 2000);
 </script>
 </body>
 </html>
