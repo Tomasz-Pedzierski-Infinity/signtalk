@@ -5,55 +5,213 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <title>SignTalk</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; background: #f8fafc; min-height: 100vh; padding: 20px; }
+.container { max-width: 500px; margin: 0 auto; }
+h1 { background: linear-gradient(135deg, #6366f1, #0ea5e9); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-size: 28px; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
+h1 span { font-size: 32px; }
+.subtitle { color: #64748b; font-size: 14px; margin-bottom: 24px; }
+.card { background: white; border-radius: 20px; padding: 24px; box-shadow: 0 2px 12px rgba(0,0,0,0.08); margin-bottom: 16px; }
+.result { min-height: 200px; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+.result-icon { font-size: 80px; margin-bottom: 12px; animation: bounce 0.8s ease-in-out infinite alternate; }
+@keyframes bounce { from { transform: translateY(0); } to { transform: translateY(-16px); } }
+.result-letter { font-size: 64px; font-weight: 800; color: #6366f1; }
+.placeholder { color: #94a3b8; font-size: 16px; text-align: center; }
+.placeholder-icon { font-size: 64px; margin-bottom: 16px; opacity: 0.4; }
+input { width: 100%; padding: 18px 20px; font-size: 22px; border: 3px solid #e2e8f0; border-radius: 14px; text-transform: uppercase; text-align: center; letter-spacing: 4px; outline: none; transition: border-color 0.2s; }
+input:focus { border-color: #6366f1; }
+input::placeholder { color: #94a3b8; text-transform: none; letter-spacing: 0; }
+.btn { width: 100%; padding: 18px; font-size: 17px; font-weight: 700; border: none; border-radius: 14px; cursor: pointer; margin-top: 12px; display: flex; align-items: center; justify-content: center; gap: 10px; transition: transform 0.1s; }
+.btn:active { transform: scale(0.97); }
+.btn-purple { background: linear-gradient(135deg, #6366f1, #4f46e5); color: white; }
+.btn-green { background: linear-gradient(135deg, #10b981, #059669); color: white; }
+.btn-blue { background: linear-gradient(135deg, #0ea5e9, #0284c7); color: white; }
+.btn-gray { background: #e2e8f0; color: #475569; }
+.error { background: #fef2f2; border: 2px solid #fecaca; border-radius: 12px; padding: 14px; color: #dc2626; font-size: 14px; margin-top: 12px; display: none; }
+.error.show { display: block; }
+.langs { display: flex; gap: 8px; margin-bottom: 16px; }
+.lang { flex: 1; padding: 12px; background: white; border: 2px solid #e2e8f0; border-radius: 12px; font-size: 13px; font-weight: 600; cursor: pointer; text-align: center; }
+.lang.active { background: #6366f1; border-color: #6366f1; color: white; }
+.speed { background: white; border-radius: 14px; padding: 16px; margin-top: 12px; }
+.speed-label { font-size: 13px; color: #64748b; margin-bottom: 10px; display: flex; justify-content: space-between; }
+.speed input { padding: 0; border: none; height: 8px; background: #e2e8f0; border-radius: 4px; -webkit-appearance: none; }
+.speed input::-webkit-slider-thumb { -webkit-appearance: none; width: 24px; height: 24px; background: linear-gradient(135deg, #6366f1, #0ea5e9); border-radius: 50%; cursor: pointer; }
+</style>
 </head>
-<body style="font-family: Arial; margin: 0; padding: 20px; background: white;">
-<h1 style="color: #6366F1;">✋ SignTalk</h1>
-<p style="color: #666;">Wpisz słowo:</p>
-<input type="text" id="word" placeholder="np. TOMEK" style="width: 100%; padding: 15px; font-size: 20px; border: 2px solid #6366F1; border-radius: 10px; text-transform: uppercase;">
-<br><br>
-<button onclick="show()" style="width: 100%; padding: 20px; font-size: 18px; background: #6366F1; color: white; border: none; border-radius: 10px; cursor: pointer;">✋ POKAŻ ZNAKI MIGOWE</button>
-<br><br>
-<button onclick="speak()" style="width: 100%; padding: 20px; font-size: 18px; background: #10B981; color: white; border: none; border-radius: 10px; cursor: pointer;">🔊 GŁOS</button>
-<br><br>
-<button onclick="listen()" style="width: 100%; padding: 20px; font-size: 18px; background: #0EA5E9; color: white; border: none; border-radius: 10px; cursor: pointer;">🎤 NAGRAJ GŁOS</button>
-<div id="result" style="margin-top: 20px; text-align: center; font-size: 48px;"></div>
-<div id="error" style="color: red; margin-top: 10px;"></div>
+<body>
+<div class="container">
+<h1><span>✋</span> SignTalk</h1>
+<p class="subtitle">Zamień głos na znaki Migowe</p>
+
+<div class="card">
+<div class="langs">
+<div class="lang active" onclick="setLang('pl-PL', this)">🇵🇱 Polski</div>
+<div class="lang" onclick="setLang('en-US', this)">🇺🇸 English</div>
+<div class="lang" onclick="setLang('de-DE', this)">🇩🇪 Deutsch</div>
+</div>
+<input type="text" id="wordInput" placeholder="Wpisz słowo..." maxlength="20">
+<div class="error" id="errorBox"></div>
+</div>
+
+<div class="card">
+<div class="result" id="result">
+<div class="placeholder">
+<div class="placeholder-icon">👋</div>
+Wpisz słowo i kliknij przycisk
+</div>
+</div>
+</div>
+
+<button class="btn btn-purple" onclick="showSigns()">✋ Pokaż znaki Migowe</button>
+<button class="btn btn-green" onclick="speakText()">🔊 Posłuchaj wymowy</button>
+<button class="btn btn-blue" onclick="startListening()">🎤 Nagraj głos</button>
+
+<div class="speed">
+<div class="speed-label">
+<span>Prędkość</span>
+<span id="speedVal">0.8s</span>
+</div>
+<input type="range" id="speedSlider" min="300" max="1500" value="800" oninput="updateSpeed()">
+</div>
+</div>
+
 <script>
 var SIGNS = {A:'✋',B:'👆',C:'🤟',D:'👇',E:'🤚',F:'✌️',G:'👌',H:'🤙',I:'☝️',J:'☝️',K:'🤲',L:'🖐️',M:'✊',N:'🤌',O:'👌',P:'🤜',Q:'🤏',R:'🤙',S:'✋',T:'🤚',U:'🖐️',V:'✌️',W:'🤞',X:'🤞',Y:'✋',Z:'🤟'};
-var rec = null;
-var isRec = false;
+var LANG_CODES = {pl:'pl-PL', en:'en-US', de:'de-DE'};
+var lang = 'pl-PL';
+var speed = 800;
+var voices = [];
+var recognition = null;
+var isListening = false;
+var resultEl = document.getElementById('result');
+var wordInput = document.getElementById('wordInput');
+var errorBox = document.getElementById('errorBox');
+var speedSlider = document.getElementById('speedSlider');
+var speedVal = document.getElementById('speedVal');
+
+// Load voices
+function loadVoices() {
+voices = speechSynthesis.getVoices();
+if (voices.length === 0) {
+speechSynthesis.onvoiceschanged = function() {
+voices = speechSynthesis.getVoices();
+};
+}
+}
+loadVoices();
+
+// Speech Recognition
 try {
 var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-rec = new SR();
-rec.lang = 'pl-PL';
-rec.onresult = function(e) { document.getElementById('word').value = e.results[0][0].transcript.toUpperCase(); show(); };
-rec.onerror = function(e) { document.getElementById('error').innerHTML = 'Błąd: ' + e.error; };
-rec.onend = function() { isRec = false; document.getElementById('error').innerHTML = ''; };
-} catch(e) { document.getElementById('error').innerHTML = 'Mikrofon niedostępny'; }
-function show() {
-var text = document.getElementById('word').value.toUpperCase().replace(/[^A-Z]/g,'');
-if(!text) { document.getElementById('error').innerHTML = 'Wpisz słowo!'; return; }
-document.getElementById('error').innerHTML = '';
-var result = document.getElementById('result');
-result.innerHTML = '';
-text.split('').forEach(function(c,i) {
-setTimeout(function() { result.innerHTML = '<div style="font-size:80px">' + (SIGNS[c]||'?') + '</div><div style="font-size:40px;color:#6366F1">' + c + '</div>'; }, i*800);
+recognition = new SR();
+recognition.lang = lang;
+recognition.onresult = function(e) {
+wordInput.value = e.results[0][0].transcript.toUpperCase();
+showSigns();
+};
+recognition.onerror = function(e) {
+if (e.error !== 'no-speech') {
+showError('Błąd: ' + e.error);
+}
+stopListening();
+};
+recognition.onend = stopListening;
+} catch(e) {}
+
+// Text to Speech - PROPER FIX
+function speakText() {
+var text = wordInput.value.trim();
+if (!text) {
+showError('Najpierw wpisz słowo!');
+return;
+}
+hideError();
+speechSynthesis.cancel(); // Stop any current speech
+var utter = new SpeechSynthesisUtterance(text);
+utter.lang = lang;
+utter.rate = 0.9;
+utter.pitch = 1;
+// Find a good voice
+var voiceList = speechSynthesis.getVoices();
+if (voiceList.length > 0) {
+var voice = voiceList.find(function(v) { return v.lang.startsWith(lang.split('-')[0]); });
+if (voice) utter.voice = voice;
+}
+speechSynthesis.speak(utter);
+}
+
+function showError(msg) {
+errorBox.textContent = msg;
+errorBox.classList.add('show');
+}
+function hideError() {
+errorBox.classList.remove('show');
+}
+
+function setLang(l, btn) {
+lang = l;
+document.querySelectorAll('.lang').forEach(function(el) { el.classList.remove('active'); });
+if (btn) btn.classList.add('active');
+if (recognition) recognition.lang = lang;
+}
+
+function updateSpeed() {
+speed = parseInt(speedSlider.value);
+speedVal.textContent = (speed/1000).toFixed(1) + 's';
+}
+
+function showSigns() {
+var text = wordInput.value.trim().toUpperCase().replace(/[^A-ZĄĘŁŃÓŚŹŻ]/g, '');
+if (!text) {
+showError('Wpisz jakieś słowo!');
+return;
+}
+hideError();
+var chars = text.split('');
+resultEl.innerHTML = '';
+chars.forEach(function(c, i) {
+setTimeout(function() {
+resultEl.innerHTML = '<div class="result-icon">' + (SIGNS[c] || '?') + '</div><div class="result-letter">' + c + '</div>';
+}, i * speed);
 });
 }
-function speak() {
-var text = document.getElementById('word').value;
-if(!text) { document.getElementById('error').innerHTML = 'Wpisz słowo!'; return; }
-var u = new SpeechSynthesisUtterance(text);
-u.lang = 'pl-PL';
-speechSynthesis.speak(u);
+
+function startListening() {
+if (!recognition) {
+showError('Mikrofon niedostępny w tej przeglądarce');
+return;
 }
-function listen() {
-if(!rec) { document.getElementById('error').innerHTML = 'Mikrofon niedostępny'; return; }
-if(isRec) { rec.stop(); isRec = false; return; }
-isRec = true;
-rec.start();
-document.getElementById('error').innerHTML = '🎤 Mów...';
+if (isListening) {
+stopListening();
+return;
 }
+hideError();
+isListening = true;
+try {
+recognition.start();
+} catch(e) {
+showError('Nie można uruchomić mikrofonu');
+isListening = false;
+return;
+}
+var btns = document.querySelectorAll('.btn');
+btns[2].innerHTML = '⏹️ Zatrzymaj';
+btns[2].style.background = 'linear-gradient(135deg, #ef4444, #dc2626)';
+}
+
+function stopListening() {
+isListening = false;
+var btns = document.querySelectorAll('.btn');
+btns[2].innerHTML = '🎤 Nagraj głos';
+btns[2].style.background = '';
+try { recognition.stop(); } catch(e) {}
+}
+
+// Enter key
+wordInput.addEventListener('keypress', function(e) {
+if (e.key === 'Enter') showSigns();
+});
 </script>
 </body>
 </html>
