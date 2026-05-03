@@ -9,7 +9,7 @@
 * { margin: 0; padding: 0; box-sizing: border-box; }
 body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; background: #f8fafc; min-height: 100vh; padding: 20px; }
 .container { max-width: 500px; margin: 0 auto; }
-h1 { background: linear-gradient(135deg, #6366f1, #0ea5e9); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-size: 28px; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
+h1 { background: linear-gradient(135deg, #6366f1, #0ea5e9); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-size: 28px; margin-bottom: 8px; display: flex; align-items: center; gap: 10px; }
 h1 span { font-size: 32px; }
 .subtitle { color: #64748b; font-size: 14px; margin-bottom: 24px; }
 .card { background: white; border-radius: 20px; padding: 24px; box-shadow: 0 2px 12px rgba(0,0,0,0.08); margin-bottom: 16px; }
@@ -27,9 +27,11 @@ input::placeholder { color: #94a3b8; text-transform: none; letter-spacing: 0; }
 .btn-purple { background: linear-gradient(135deg, #6366f1, #4f46e5); color: white; }
 .btn-green { background: linear-gradient(135deg, #10b981, #059669); color: white; }
 .btn-blue { background: linear-gradient(135deg, #0ea5e9, #0284c7); color: white; }
-.btn-gray { background: #e2e8f0; color: #475569; }
+.btn-red { background: linear-gradient(135deg, #ef4444, #dc2626); color: white; }
 .error { background: #fef2f2; border: 2px solid #fecaca; border-radius: 12px; padding: 14px; color: #dc2626; font-size: 14px; margin-top: 12px; display: none; }
 .error.show { display: block; }
+.success { background: #f0fdf4; border: 2px solid #bbf7d0; border-radius: 12px; padding: 14px; color: #16a34a; font-size: 14px; margin-top: 12px; display: none; }
+.success.show { display: block; }
 .langs { display: flex; gap: 8px; margin-bottom: 16px; }
 .lang { flex: 1; padding: 12px; background: white; border: 2px solid #e2e8f0; border-radius: 12px; font-size: 13px; font-weight: 600; cursor: pointer; text-align: center; }
 .lang.active { background: #6366f1; border-color: #6366f1; color: white; }
@@ -37,6 +39,7 @@ input::placeholder { color: #94a3b8; text-transform: none; letter-spacing: 0; }
 .speed-label { font-size: 13px; color: #64748b; margin-bottom: 10px; display: flex; justify-content: space-between; }
 .speed input { padding: 0; border: none; height: 8px; background: #e2e8f0; border-radius: 4px; -webkit-appearance: none; }
 .speed input::-webkit-slider-thumb { -webkit-appearance: none; width: 24px; height: 24px; background: linear-gradient(135deg, #6366f1, #0ea5e9); border-radius: 50%; cursor: pointer; }
+.status { font-size: 12px; color: #94a3b8; text-align: center; margin-top: 8px; }
 </style>
 </head>
 <body>
@@ -52,6 +55,8 @@ input::placeholder { color: #94a3b8; text-transform: none; letter-spacing: 0; }
 </div>
 <input type="text" id="wordInput" placeholder="Wpisz słowo..." maxlength="20">
 <div class="error" id="errorBox"></div>
+<div class="success" id="successBox"></div>
+<div class="status" id="statusText">System głosowy: ładowanie...</div>
 </div>
 
 <div class="card">
@@ -77,141 +82,225 @@ Wpisz słowo i kliknij przycisk
 </div>
 
 <script>
+// Signs dictionary
 var SIGNS = {A:'✋',B:'👆',C:'🤟',D:'👇',E:'🤚',F:'✌️',G:'👌',H:'🤙',I:'☝️',J:'☝️',K:'🤲',L:'🖐️',M:'✊',N:'🤌',O:'👌',P:'🤜',Q:'🤏',R:'🤙',S:'✋',T:'🤚',U:'🖐️',V:'✌️',W:'🤞',X:'🤞',Y:'✋',Z:'🤟'};
-var LANG_CODES = {pl:'pl-PL', en:'en-US', de:'de-DE'};
+
+// State
 var lang = 'pl-PL';
 var speed = 800;
-var voices = [];
+var voicesLoaded = false;
 var recognition = null;
 var isListening = false;
+
+// DOM
 var resultEl = document.getElementById('result');
 var wordInput = document.getElementById('wordInput');
 var errorBox = document.getElementById('errorBox');
+var successBox = document.getElementById('successBox');
+var statusText = document.getElementById('statusText');
 var speedSlider = document.getElementById('speedSlider');
 var speedVal = document.getElementById('speedVal');
 
 // Load voices
 function loadVoices() {
-voices = speechSynthesis.getVoices();
-if (voices.length === 0) {
-speechSynthesis.onvoiceschanged = function() {
-voices = speechSynthesis.getVoices();
-};
+  try {
+    var voiceList = speechSynthesis.getVoices();
+    if (voiceList.length > 0) {
+      voicesLoaded = true;
+      statusText.textContent = 'System głosowy: gotowy ✓';
+      statusText.style.color = '#16a34a';
+    } else {
+      statusText.textContent = 'System głosowy: ładowanie...';
+    }
+  } catch(e) {
+    statusText.textContent = 'System głosowy: błąd';
+  }
 }
+
+// Voice loading events
+try {
+  speechSynthesis.onvoiceschanged = loadVoices;
+  loadVoices();
+} catch(e) {
+  statusText.textContent = 'System głosowy: niedostępny';
 }
-loadVoices();
+
+// TTS - PROPER IMPLEMENTATION
+function speakText() {
+  var text = wordInput.value.trim();
+  if (!text) {
+    showError('Najpierw wpisz słowo!');
+    return;
+  }
+  
+  hideError();
+  hideSuccess();
+  
+  // Cancel any ongoing speech
+  try {
+    speechSynthesis.cancel();
+  } catch(e) {}
+  
+  // Create utterance
+  var utter = new SpeechSynthesisUtterance(text);
+  utter.lang = lang;
+  utter.rate = 0.9;
+  utter.pitch = 1;
+  utter.volume = 1;
+  
+  // Get voices
+  var voiceList = speechSynthesis.getVoices();
+  if (voiceList.length > 0) {
+    // Find matching voice
+    var langPrefix = lang.split('-')[0];
+    for (var i = 0; i < voiceList.length; i++) {
+      if (voiceList[i].lang.startsWith(langPrefix)) {
+        utter.voice = voiceList[i];
+        break;
+      }
+    }
+  }
+  
+  // Events
+  utter.onstart = function() {
+    showSuccess('🔊 Odtwarzanie...');
+  };
+  
+  utter.onend = function() {
+    hideSuccess();
+  };
+  
+  utter.onerror = function(e) {
+    showError('Błąd odtwarzania: ' + e.error);
+    hideSuccess();
+  };
+  
+  // Speak
+  try {
+    speechSynthesis.speak(utter);
+  } catch(e) {
+    showError('Błąd: ' + e.message);
+  }
+}
 
 // Speech Recognition
 try {
-var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-recognition = new SR();
-recognition.lang = lang;
-recognition.onresult = function(e) {
-wordInput.value = e.results[0][0].transcript.toUpperCase();
-showSigns();
-};
-recognition.onerror = function(e) {
-if (e.error !== 'no-speech') {
-showError('Błąd: ' + e.error);
-}
-stopListening();
-};
-recognition.onend = stopListening;
+  var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (SR) {
+    recognition = new SR();
+    recognition.lang = lang;
+    recognition.continuous = false;
+    recognition.interimResults = false;
+    
+    recognition.onresult = function(e) {
+      wordInput.value = e.results[0][0].transcript.toUpperCase();
+      showSigns();
+    };
+    
+    recognition.onerror = function(e) {
+      if (e.error !== 'no-speech') {
+        showError('Błąd mikrofonu: ' + e.error);
+      }
+      stopListening();
+    };
+    
+    recognition.onend = stopListening;
+  }
 } catch(e) {}
 
-// Text to Speech - PROPER FIX
-function speakText() {
-var text = wordInput.value.trim();
-if (!text) {
-showError('Najpierw wpisz słowo!');
-return;
-}
-hideError();
-speechSynthesis.cancel(); // Stop any current speech
-var utter = new SpeechSynthesisUtterance(text);
-utter.lang = lang;
-utter.rate = 0.9;
-utter.pitch = 1;
-// Find a good voice
-var voiceList = speechSynthesis.getVoices();
-if (voiceList.length > 0) {
-var voice = voiceList.find(function(v) { return v.lang.startsWith(lang.split('-')[0]); });
-if (voice) utter.voice = voice;
-}
-speechSynthesis.speak(utter);
+// Functions
+function showError(msg) {
+  errorBox.textContent = msg;
+  errorBox.classList.add('show');
+  successBox.classList.remove('show');
 }
 
-function showError(msg) {
-errorBox.textContent = msg;
-errorBox.classList.add('show');
-}
 function hideError() {
-errorBox.classList.remove('show');
+  errorBox.classList.remove('show');
+}
+
+function showSuccess(msg) {
+  successBox.textContent = msg;
+  successBox.classList.add('show');
+}
+
+function hideSuccess() {
+  successBox.classList.remove('show');
 }
 
 function setLang(l, btn) {
-lang = l;
-document.querySelectorAll('.lang').forEach(function(el) { el.classList.remove('active'); });
-if (btn) btn.classList.add('active');
-if (recognition) recognition.lang = lang;
+  lang = l;
+  document.querySelectorAll('.lang').forEach(function(el) { el.classList.remove('active'); });
+  if (btn) btn.classList.add('active');
+  if (recognition) recognition.lang = lang;
 }
 
 function updateSpeed() {
-speed = parseInt(speedSlider.value);
-speedVal.textContent = (speed/1000).toFixed(1) + 's';
+  speed = parseInt(speedSlider.value);
+  speedVal.textContent = (speed/1000).toFixed(1) + 's';
 }
 
 function showSigns() {
-var text = wordInput.value.trim().toUpperCase().replace(/[^A-ZĄĘŁŃÓŚŹŻ]/g, '');
-if (!text) {
-showError('Wpisz jakieś słowo!');
-return;
-}
-hideError();
-var chars = text.split('');
-resultEl.innerHTML = '';
-chars.forEach(function(c, i) {
-setTimeout(function() {
-resultEl.innerHTML = '<div class="result-icon">' + (SIGNS[c] || '?') + '</div><div class="result-letter">' + c + '</div>';
-}, i * speed);
-});
+  var text = wordInput.value.trim().toUpperCase().replace(/[^A-ZĄĘŁŃÓŚŹŻ]/g, '');
+  if (!text) {
+    showError('Wpisz jakieś słowo!');
+    return;
+  }
+  hideError();
+  hideSuccess();
+  var chars = text.split('');
+  resultEl.innerHTML = '';
+  chars.forEach(function(c, i) {
+    setTimeout(function() {
+      resultEl.innerHTML = '<div class="result-icon">' + (SIGNS[c] || '?') + '</div><div class="result-letter">' + c + '</div>';
+    }, i * speed);
+  });
 }
 
 function startListening() {
-if (!recognition) {
-showError('Mikrofon niedostępny w tej przeglądarce');
-return;
-}
-if (isListening) {
-stopListening();
-return;
-}
-hideError();
-isListening = true;
-try {
-recognition.start();
-} catch(e) {
-showError('Nie można uruchomić mikrofonu');
-isListening = false;
-return;
-}
-var btns = document.querySelectorAll('.btn');
-btns[2].innerHTML = '⏹️ Zatrzymaj';
-btns[2].style.background = 'linear-gradient(135deg, #ef4444, #dc2626)';
+  if (!recognition) {
+    showError('Mikrofon niedostępny w tej przeglądarce');
+    return;
+  }
+  if (isListening) {
+    stopListening();
+    return;
+  }
+  hideError();
+  hideSuccess();
+  isListening = true;
+  
+  var btns = document.querySelectorAll('.btn');
+  btns[2].innerHTML = '⏹️ Zatrzymaj';
+  btns[2].className = 'btn btn-red';
+  
+  try {
+    recognition.start();
+    showSuccess('🎤 Nasłuchuję... mów!');
+  } catch(e) {
+    showError('Nie można uruchomić mikrofonu');
+    stopListening();
+  }
 }
 
 function stopListening() {
-isListening = false;
-var btns = document.querySelectorAll('.btn');
-btns[2].innerHTML = '🎤 Nagraj głos';
-btns[2].style.background = '';
-try { recognition.stop(); } catch(e) {}
+  isListening = false;
+  var btns = document.querySelectorAll('.btn');
+  btns[2].innerHTML = '🎤 Nagraj głos';
+  btns[2].className = 'btn btn-blue';
+  try { recognition.stop(); } catch(e) {}
+  hideSuccess();
 }
 
 // Enter key
 wordInput.addEventListener('keypress', function(e) {
-if (e.key === 'Enter') showSigns();
+  if (e.key === 'Enter') showSigns();
 });
+
+// Pre-load voices
+setTimeout(function() {
+  loadVoices();
+}, 1000);
 </script>
 </body>
 </html>
