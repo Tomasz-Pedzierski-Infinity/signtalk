@@ -2,62 +2,266 @@
 <html lang="pl">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SignTalk Test</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>SignTalk - Głos na Migowy</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; background: #f8fafc; min-height: 100vh; padding: 20px; }
+.container { max-width: 500px; margin: 0 auto; }
+h1 { font-size: 28px; font-weight: 800; background: linear-gradient(135deg, #6366f1, #0ea5e9); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 4px; }
+.sub { color: #64748b; font-size: 14px; margin-bottom: 20px; }
+.card { background: white; border-radius: 20px; padding: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.08); margin-bottom: 16px; }
+input { width: 100%; padding: 20px; font-size: 24px; border: 3px solid #e2e8f0; border-radius: 14px; text-transform: uppercase; text-align: center; letter-spacing: 4px; outline: none; }
+input:focus { border-color: #6366f1; }
+input::placeholder { color: #94a3b8; text-transform: none; letter-spacing: 0; }
+.row { display: flex; gap: 8px; margin-bottom: 16px; }
+.lang { flex: 1; padding: 14px; background: white; border: 2px solid #e2e8f0; border-radius: 12px; font-size: 14px; font-weight: 600; cursor: pointer; text-align: center; }
+.lang.active { background: #6366f1; border-color: #6366f1; color: white; }
+.result { min-height: 180px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
+.result-icon { font-size: 72px; animation: bounce 0.7s ease-in-out infinite alternate; }
+@keyframes bounce { from { transform: translateY(0); } to { transform: translateY(-14px); } }
+.result-letter { font-size: 56px; font-weight: 800; color: #6366f1; margin-top: 8px; }
+.placeholder { color: #94a3b8; font-size: 15px; }
+.btn { width: 100%; padding: 18px; font-size: 16px; font-weight: 700; border: none; border-radius: 14px; cursor: pointer; margin-top: 10px; display: flex; align-items: center; justify-content: center; gap: 8px; }
+.btn-purple { background: linear-gradient(135deg, #6366f1, #4f46e5); color: white; }
+.btn-green { background: #10b981; color: white; }
+.btn-blue { background: #0ea5e9; color: white; }
+.btn-red { background: #ef4444; color: white; }
+.msg { padding: 12px; border-radius: 10px; font-size: 14px; margin-top: 10px; display: none; text-align: center; }
+.msg-error { background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; display: block; }
+.msg-ok { background: #f0fdf4; color: #16a34a; border: 1px solid #bbf7d0; display: block; }
+.speed { background: white; border-radius: 14px; padding: 16px; margin-top: 10px; }
+.speed-label { font-size: 13px; color: #64748b; margin-bottom: 10px; display: flex; justify-content: space-between; }
+.speed input { padding: 0; border: none; height: 8px; background: #e2e8f0; border-radius: 4px; -webkit-appearance: none; width: 100%; }
+.speed input::-webkit-slider-thumb { -webkit-appearance: none; width: 22px; height: 22px; background: linear-gradient(135deg, #6366f1, #0ea5e9); border-radius: 50%; cursor: pointer; }
+.test-status { padding: 12px; background: #fffbeb; border: 1px solid #fcd34d; border-radius: 10px; font-size: 12px; color: #92400e; margin-top: 10px; }
+</style>
 </head>
-<body style="font-family: Arial; padding: 20px;">
-<h1>✋ SignTalk - TEST TTS</h1>
+<body>
+<div class="container">
+<h1>✋ SignTalk</h1>
+<p class="sub">Zamień tekst na znaki Migowe + głos</p>
 
-<p>Wpisz tekst:</p>
-<input type="text" id="text" placeholder="Napisz coś..." style="width: 100%; padding: 15px; font-size: 20px; border: 2px solid #6366f1; border-radius: 8px;">
-<br><br>
+<div class="card">
+<div class="row">
+<div class="lang active" id="langPL" onclick="setLang('pl-PL')">🇵🇱 Polski</div>
+<div class="lang" id="langEN" onclick="setLang('en-US')">🇺🇸 English</div>
+<div class="lang" id="langDE" onclick="setLang('de-DE')">🇩🇪 Deutsch</div>
+</div>
+<input type="text" id="wordInput" placeholder="Wpisz tutaj..." maxlength="20">
+<div id="msgBox"></div>
+<div id="testStatus" class="test-status"></div>
+</div>
 
-<button onclick="speak()" style="width: 100%; padding: 20px; font-size: 24px; background: #10b981; color: white; border: none; border-radius: 10px; cursor: pointer;">
-🔊 KLIKNIJ ABY USŁYSZEĆ
-</button>
+<div class="card">
+<div class="result" id="result">
+<p class="placeholder">Wpisz słowo powyżej<br>i kliknij przycisk</p>
+</div>
+</div>
 
-<p id="status" style="margin-top: 20px; color: green;"></p>
+<button class="btn btn-purple" onclick="showSigns()">✋ Pokaż znaki Migowe</button>
+<button class="btn btn-green" id="speakBtn" onclick="speakText()">🔊 Przeczytaj głosem</button>
+<button class="btn btn-blue" id="micBtn" onclick="toggleMic()">🎤 Nagraj głos</button>
+
+<div class="speed">
+<div class="speed-label">
+<span>Prędkość</span>
+<span id="speedVal">0.8s</span>
+</div>
+<input type="range" id="speedSlider" min="300" max="1200" value="800" oninput="updateSpeed()">
+</div>
+</div>
 
 <script>
-function speak() {
-  var text = document.getElementById('text').value;
+// Signs dictionary
+var SIGNS = {A:'✋',B:'👆',C:'🤟',D:'👇',E:'🤚',F:'✌️',G:'👌',H:'🤙',I:'☝️',J:'☝️',K:'🤲',L:'🖐️',M:'✊',N:'🤌',O:'👌',P:'🤜',Q:'🤏',R:'🤙',S:'✋',T:'🤚',U:'🖐️',V:'✌️',W:'🤞',X:'🤞',Y:'✋',Z:'🤟'};
+var lang = 'pl-PL';
+var speed = 800;
+var isListening = false;
+var resultEl = document.getElementById('result');
+var wordInput = document.getElementById('wordInput');
+var msgBox = document.getElementById('msgBox');
+var speakBtn = document.getElementById('speakBtn');
+var micBtn = document.getElementById('micBtn');
+var testStatus = document.getElementById('testStatus');
+var recognition = null;
+
+// ===== TTS (Text-to-Speech) - KLUCZOWA FUNKCJA =====
+function speakText() {
+  var text = wordInput.value.trim();
   if (!text) {
-    document.getElementById('status').innerHTML = '❌ WPISZ COŚ!';
-    document.getElementById('status').style.color = 'red';
+    showMsg('Wpisz jakieś słowo!', 'error');
     return;
   }
   
-  document.getElementById('status').innerHTML = '🔊 Mówię...';
-  document.getElementById('status').style.color = 'green';
-  
   // Cancel any current speech
-  speechSynthesis.cancel();
+  try { speechSynthesis.cancel(); } catch(e) {}
   
-  // Create and speak
-  var utter = new SpeechSynthesisUtterance(text);
-  utter.lang = 'pl-PL';
-  utter.rate = 0.9;
-  
-  utter.onend = function() {
-    document.getElementById('status').innerHTML = '✓ Skończyłem!';
-  };
-  
-  utter.onerror = function(e) {
-    document.getElementById('status').innerHTML = '❌ Błąd: ' + e.error;
-    document.getElementById('status').style.color = 'red';
-  };
-  
-  speechSynthesis.speak(utter);
+  setTimeout(function() {
+    // Create utterance - KLUCZOWE!
+    var utter = new SpeechSynthesisUtterance(text);
+    utter.lang = lang;
+    utter.rate = 0.9;
+    utter.pitch = 1;
+    
+    utter.onstart = function() {
+      showMsg('🔊 Czytam...', 'ok');
+      speakBtn.disabled = true;
+    };
+    
+    utter.onend = function() {
+      speakBtn.disabled = false;
+      showMsg('✓ Przeczytane!', 'ok');
+    };
+    
+    utter.onerror = function(e) {
+      speakBtn.disabled = false;
+      if (e.error !== 'canceled') {
+        showMsg('Błąd: ' + e.error, 'error');
+      }
+    };
+    
+    // SPEAK!
+    speechSynthesis.speak(utter);
+  }, 50);
 }
 
-// Also try speaking on load
-window.onload = function() {
-  setTimeout(function() {
-    var utter = new SpeechSynthesisUtterance('Cześć! Mam głos!');
-    utter.lang = 'pl-PL';
-    speechSynthesis.speak(utter);
-  }, 1000);
-};
+// ===== Load voices and test TTS =====
+function testTTS() {
+  try {
+    var voices = speechSynthesis.getVoices();
+    if (voices.length > 0) {
+      testStatus.innerHTML = '✓ Głosy załadowane: ' + voices.length + ' głosów';
+      testStatus.style.background = '#f0fdf4';
+      testStatus.style.color = '#16a34a';
+      testStatus.style.borderColor = '#bbf7d0';
+      
+      // Test if we can actually speak
+      try {
+        speechSynthesis.cancel();
+        var testUtter = new SpeechSynthesisUtterance('Test');
+        testUtter.lang = lang;
+        testUtter.rate = 1;
+        speechSynthesis.speak(testUtter);
+      } catch(e) {
+        testStatus.innerHTML += '<br>❌ Test mowy nie działa: ' + e.message;
+      }
+    } else {
+      testStatus.innerHTML = '⏳ Ładowanie głosów...';
+      setTimeout(testTTS, 500);
+    }
+  } catch(e) {
+    testStatus.innerHTML = '❌ Błąd: ' + e.message;
+  }
+}
+
+// Init TTS
+try {
+  testTTS();
+  if (speechSynthesis.onvoiceschanged !== undefined) {
+    speechSynthesis.onvoiceschanged = testTTS;
+  }
+  setTimeout(testTTS, 500);
+  setTimeout(testTTS, 1000);
+  setTimeout(testTTS, 2000);
+} catch(e) {
+  testStatus.innerHTML = '❌ System TTS niedostępny';
+}
+
+// ===== Speech Recognition =====
+try {
+  var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (SR) {
+    recognition = new SR();
+    recognition.lang = lang;
+    recognition.onresult = function(e) {
+      wordInput.value = e.results[0][0].transcript.toUpperCase();
+      showSigns();
+    };
+    recognition.onerror = function(e) {
+      if (e.error !== 'no-speech') {
+        showMsg('Błąd mikrofonu: ' + e.error, 'error');
+      }
+      stopMic();
+    };
+    recognition.onend = stopMic;
+  }
+} catch(e) {}
+
+function toggleMic() {
+  if (!recognition) {
+    showMsg('Mikrofon niedostępny', 'error');
+    return;
+  }
+  if (isListening) {
+    stopMic();
+  } else {
+    hideMsg();
+    isListening = true;
+    micBtn.innerHTML = '⏹️ Zatrzymaj';
+    micBtn.className = 'btn btn-red';
+    try {
+      recognition.start();
+      showMsg('🎤 Słucham...', 'ok');
+    } catch(e) {
+      showMsg('Nie można uruchomić mikrofonu', 'error');
+      stopMic();
+    }
+  }
+}
+
+function stopMic() {
+  isListening = false;
+  micBtn.innerHTML = '🎤 Nagraj głos';
+  micBtn.className = 'btn btn-blue';
+  try { recognition.stop(); } catch(e) {}
+}
+
+function setLang(l) {
+  lang = l;
+  document.getElementById('langPL').className = 'lang' + (l === 'pl-PL' ? ' active' : '');
+  document.getElementById('langEN').className = 'lang' + (l === 'en-US' ? ' active' : '');
+  document.getElementById('langDE').className = 'lang' + (l === 'de-DE' ? ' active' : '');
+  if (recognition) recognition.lang = l;
+}
+
+function updateSpeed() {
+  speed = parseInt(document.getElementById('speedSlider').value);
+  document.getElementById('speedVal').textContent = (speed/1000).toFixed(1) + 's';
+}
+
+function showMsg(text, type) {
+  msgBox.textContent = text;
+  msgBox.className = 'msg msg-' + type;
+  if (type === 'ok') {
+    setTimeout(function() { msgBox.className = 'msg'; msgBox.textContent = ''; }, 3000);
+  }
+}
+
+function showSigns() {
+  var text = wordInput.value.trim().toUpperCase().replace(/[^A-ZĄĘŁŃÓŚŹŻ]/g, '');
+  if (!text) {
+    showMsg('Wpisz jakieś słowo!', 'error');
+    return;
+  }
+  hideMsg();
+  var chars = text.split('');
+  resultEl.innerHTML = '';
+  chars.forEach(function(c, i) {
+    setTimeout(function() {
+      resultEl.innerHTML = '<div class="result-icon">' + (SIGNS[c] || '?') + '</div><div class="result-letter">' + c + '</div>';
+    }, i * speed);
+  });
+}
+
+function hideMsg() {
+  msgBox.className = 'msg';
+  msgBox.textContent = '';
+}
+
+wordInput.addEventListener('keypress', function(e) {
+  if (e.key === 'Enter') showSigns();
+});
 </script>
 </body>
 </html>
