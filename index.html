@@ -10,12 +10,10 @@
     <link rel="manifest" href="manifest.json">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        
         :root {
             --primary: #6366F1;
             --primary-dark: #4F46E5;
             --secondary: #0EA5E9;
-            --success: #10B981;
             --bg: #FFFFFF;
             --surface: #F8FAFC;
             --border: #E2E8F0;
@@ -23,24 +21,19 @@
             --text-secondary: #64748B;
             --text-muted: #94A3B8;
         }
-        
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             background: var(--bg);
             color: var(--text);
             min-height: 100vh;
             display: flex;
             flex-direction: column;
         }
-        
-        /* Header */
         header {
             background: var(--bg);
             padding: 20px 24px;
             border-bottom: 1px solid var(--border);
-            flex-shrink: 0;
         }
-        
         .logo {
             font-size: 22px;
             font-weight: 700;
@@ -49,312 +42,180 @@
             align-items: center;
             gap: 10px;
         }
-        
         .logo-icon {
-            width: 36px;
-            height: 36px;
+            width: 40px;
+            height: 40px;
             background: linear-gradient(135deg, var(--primary), var(--secondary));
-            border-radius: 10px;
+            border-radius: 12px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 18px;
+            font-size: 20px;
         }
+        .tagline { font-size: 13px; color: var(--text-secondary); margin-top: 4px; }
         
-        .tagline {
-            font-size: 13px;
-            color: var(--text-secondary);
-            margin-top: 4px;
-        }
-        
-        /* Language Tabs */
         .lang-tabs {
             display: flex;
             gap: 8px;
             padding: 16px 24px;
             background: var(--surface);
             border-bottom: 1px solid var(--border);
-            flex-shrink: 0;
         }
-        
         .lang-tab {
             flex: 1;
-            padding: 12px 16px;
+            padding: 12px 8px;
             background: var(--bg);
             border: 2px solid var(--border);
             border-radius: 12px;
-            font-size: 14px;
+            font-size: 13px;
             font-weight: 600;
             color: var(--text-secondary);
             cursor: pointer;
-            transition: all 0.2s;
             text-align: center;
+            transition: all 0.2s;
         }
-        
         .lang-tab.active {
             background: var(--primary);
             border-color: var(--primary);
             color: white;
         }
         
-        /* Main Content */
-        main {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            padding: 24px;
-            overflow-y: auto;
-        }
+        main { flex: 1; padding: 24px; }
         
-        /* Display Card */
         .display-card {
             background: var(--surface);
-            border-radius: 20px;
-            padding: 32px 24px;
+            border-radius: 24px;
+            padding: 40px 24px;
             text-align: center;
             margin-bottom: 24px;
-            min-height: 280px;
+            min-height: 300px;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             border: 1px solid var(--border);
         }
+        .placeholder-text { color: var(--text-muted); font-size: 15px; line-height: 1.6; }
+        .placeholder-icon { font-size: 56px; margin-bottom: 16px; opacity: 0.4; }
         
-        .placeholder {
-            color: var(--text-muted);
-            font-size: 15px;
-            line-height: 1.6;
-        }
+        .sign-area { display: none; width: 100%; }
+        .sign-area.visible { display: block; }
+        .sign-word { font-size: 13px; color: var(--text-muted); letter-spacing: 4px; text-transform: uppercase; }
+        .sign-letter { font-size: 88px; font-weight: 800; color: var(--primary); line-height: 1; margin: 12px 0; }
+        .sign-hand { font-size: 80px; margin: 16px 0; animation: bounce 0.8s ease-in-out infinite alternate; }
+        @keyframes bounce { from { transform: translateY(0); } to { transform: translateY(-16px); } }
+        .sign-lang { font-size: 12px; color: var(--text-muted); margin-top: 12px; }
         
-        .placeholder-icon {
-            font-size: 48px;
-            margin-bottom: 16px;
-            opacity: 0.5;
-        }
+        .progress-wrap { width: 100%; margin-top: 24px; }
+        .progress-bar { width: 100%; height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; }
+        .progress-fill { height: 100%; background: linear-gradient(90deg, var(--primary), var(--secondary)); width: 0%; transition: width 0.3s; }
+        .progress-label { font-size: 12px; color: var(--text-muted); margin-top: 8px; }
         
-        /* Sign Display */
-        .sign-display {
-            display: none;
-            flex-direction: column;
-            align-items: center;
-            width: 100%;
-        }
-        
-        .sign-display.visible {
-            display: flex;
-        }
-        
-        .sign-word {
-            font-size: 14px;
-            color: var(--text-muted);
-            letter-spacing: 4px;
-            text-transform: uppercase;
-            margin-bottom: 8px;
-        }
-        
-        .sign-letter {
-            font-size: 80px;
-            font-weight: 800;
-            color: var(--primary);
-            line-height: 1;
-            margin-bottom: 16px;
-        }
-        
-        .sign-hand {
-            font-size: 72px;
-            margin: 16px 0;
-            animation: float 1s ease-in-out infinite alternate;
-        }
-        
-        @keyframes float {
-            from { transform: translateY(0); }
-            to { transform: translateY(-12px); }
-        }
-        
-        .sign-lang {
-            font-size: 12px;
-            color: var(--text-muted);
-            margin-top: 12px;
-        }
-        
-        /* Progress */
-        .progress-container {
-            width: 100%;
-            margin-top: 24px;
-        }
-        
-        .progress-bar {
-            width: 100%;
-            height: 4px;
-            background: var(--border);
-            border-radius: 2px;
-            overflow: hidden;
-        }
-        
-        .progress-fill {
-            height: 100%;
-            background: linear-gradient(90deg, var(--primary), var(--secondary));
-            width: 0%;
-            transition: width 0.3s ease;
-        }
-        
-        .progress-text {
-            font-size: 12px;
-            color: var(--text-muted);
-            margin-top: 8px;
-        }
-        
-        /* Text Input */
-        .input-group {
-            margin-bottom: 16px;
-        }
-        
+        .input-wrap { margin-bottom: 16px; }
         .text-input {
             width: 100%;
-            padding: 16px 20px;
-            font-size: 16px;
+            padding: 18px 20px;
+            font-size: 18px;
             border: 2px solid var(--border);
-            border-radius: 14px;
+            border-radius: 16px;
             background: var(--bg);
             color: var(--text);
             outline: none;
-            transition: border-color 0.2s;
             text-transform: uppercase;
-            letter-spacing: 2px;
+            letter-spacing: 3px;
+            text-align: center;
+            transition: border-color 0.2s;
         }
+        .text-input:focus { border-color: var(--primary); }
+        .text-input::placeholder { color: var(--text-muted); text-transform: none; letter-spacing: 0; }
         
-        .text-input:focus {
-            border-color: var(--primary);
-        }
-        
-        .text-input::placeholder {
-            color: var(--text-muted);
-            text-transform: none;
-            letter-spacing: 0;
-        }
-        
-        /* Primary Button */
-        .btn-primary {
+        .btn {
             width: 100%;
             padding: 18px 24px;
-            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
             border: none;
-            border-radius: 14px;
-            color: white;
+            border-radius: 16px;
             font-size: 16px;
             font-weight: 700;
             cursor: pointer;
-            transition: all 0.2s;
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 10px;
             margin-bottom: 12px;
-        }
-        
-        .btn-primary:active {
-            transform: scale(0.98);
-        }
-        
-        .btn-primary:hover {
-            box-shadow: 0 8px 24px rgba(99, 102, 241, 0.3);
-        }
-        
-        /* Secondary Button */
-        .btn-secondary {
-            width: 100%;
-            padding: 16px 24px;
-            background: var(--surface);
-            border: 2px solid var(--border);
-            border-radius: 14px;
-            color: var(--text);
-            font-size: 15px;
-            font-weight: 600;
-            cursor: pointer;
             transition: all 0.2s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
         }
-        
-        .btn-secondary:active {
-            background: var(--border);
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
         }
+        .btn-primary:active { transform: scale(0.97); }
         
-        /* Speed Control */
-        .speed-control {
+        .btn-secondary {
             background: var(--surface);
-            border-radius: 14px;
+            color: var(--text);
+            border: 2px solid var(--border);
+        }
+        .btn-secondary:active { background: var(--border); }
+        
+        .btn-voice {
+            background: linear-gradient(135deg, #10B981, #059669);
+            color: white;
+        }
+        .btn-voice:active { transform: scale(0.97); }
+        .btn-voice.recording {
+            animation: pulse-red 1s infinite;
+            background: linear-gradient(135deg, #EF4444, #DC2626);
+        }
+        @keyframes pulse-red { 0%,100% { box-shadow: 0 0 0 0 rgba(239,68,68,0.4); } 50% { box-shadow: 0 0 0 20px rgba(239,68,68,0); } }
+        
+        .speed-section {
+            background: var(--surface);
+            border-radius: 16px;
             padding: 16px 20px;
             margin-top: 16px;
             border: 1px solid var(--border);
         }
-        
-        .speed-label {
+        .speed-header {
+            display: flex;
+            justify-content: space-between;
             font-size: 13px;
             color: var(--text-secondary);
             margin-bottom: 12px;
-            display: flex;
-            justify-content: space-between;
         }
-        
         .speed-slider {
             width: 100%;
-            height: 6px;
+            height: 8px;
             -webkit-appearance: none;
             background: var(--border);
-            border-radius: 3px;
-            outline: none;
+            border-radius: 4px;
         }
-        
         .speed-slider::-webkit-slider-thumb {
             -webkit-appearance: none;
-            width: 24px;
-            height: 24px;
+            width: 28px;
+            height: 28px;
             background: linear-gradient(135deg, var(--primary), var(--secondary));
             border-radius: 50%;
             cursor: pointer;
-            box-shadow: 0 2px 8px rgba(99, 102, 241, 0.3);
         }
         
-        /* Footer */
+        .error-msg {
+            background: #FEF2F2;
+            border: 1px solid #FECACA;
+            border-radius: 12px;
+            padding: 12px 16px;
+            color: #DC2626;
+            font-size: 13px;
+            margin-top: 12px;
+            display: none;
+        }
+        .error-msg.show { display: block; }
+        
         footer {
             padding: 16px 24px;
             text-align: center;
             color: var(--text-muted);
-            font-size: 12px;
+            font-size: 11px;
             border-top: 1px solid var(--border);
-            flex-shrink: 0;
-        }
-        
-        /* Install Banner */
-        .install-banner {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            padding: 16px 24px;
-            display: none;
-            justify-content: center;
-        }
-        
-        .install-btn {
-            background: white;
-            color: var(--primary);
-            border: none;
-            padding: 14px 28px;
-            border-radius: 12px;
-            font-size: 14px;
-            font-weight: 700;
-            cursor: pointer;
-        }
-        
-        /* Responsive */
-        @media (min-width: 480px) {
-            main { max-width: 400px; margin: 0 auto; }
         }
     </style>
 </head>
@@ -370,48 +231,52 @@
     </header>
     
     <div class="lang-tabs">
-        <button class="lang-tab active" data-lang="pl-PL" onclick="setLang('pl-PL')">🇵🇱 Polski</button>
-        <button class="lang-tab" data-lang="en-US" onclick="setLang('en-US')">🇺🇸 English</button>
-        <button class="lang-tab" data-lang="de-DE" onclick="setLang('de-DE')">🇩🇪 Deutsch</button>
+        <div class="lang-tab active" data-lang="pl-PL" onclick="setLang('pl-PL')">🇵🇱 Polski</div>
+        <div class="lang-tab" data-lang="en-US" onclick="setLang('en-US')">🇺🇸 English</div>
+        <div class="lang-tab" data-lang="de-DE" onclick="setLang('de-DE')">🇩🇪 Deutsch</div>
     </div>
     
     <main>
         <div class="display-card">
-            <div class="placeholder" id="placeholder">
+            <div id="placeholder">
                 <div class="placeholder-icon">👋</div>
-                <div>Wpisz tekst poniżej<br>i kliknij "Pokaż znaki"</div>
+                <div class="placeholder-text">Wpisz słowo lub nagraj głos</div>
             </div>
             
-            <div class="sign-display" id="signDisplay">
+            <div id="signArea" class="sign-area">
                 <div class="sign-word" id="signWord"></div>
                 <div class="sign-letter" id="signLetter"></div>
                 <div class="sign-hand" id="signHand">✋</div>
                 <div class="sign-lang" id="signLang"></div>
-                <div class="progress-container">
-                    <div class="progress-bar">
-                        <div class="progress-fill" id="progressFill"></div>
-                    </div>
-                    <div class="progress-text" id="progressText">1 / 5</div>
+                <div class="progress-wrap">
+                    <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+                    <div class="progress-label" id="progressLabel">1 / 5</div>
                 </div>
             </div>
         </div>
         
-        <div class="input-group">
+        <div class="input-wrap">
             <input type="text" class="text-input" id="textInput" placeholder="Wpisz słowo..." maxlength="20">
         </div>
         
-        <button class="btn-primary" onclick="startAnimation(document.getElementById('textInput').value)">
+        <button class="btn btn-primary" id="btnShow" onclick="showSigns()">
             ✋ Pokaż znaki Migowe
         </button>
         
-        <button class="btn-secondary" onclick="speakText()">
-            🔊 Posłuchaj wymowy
+        <button class="btn btn-voice" id="btnVoice" onclick="toggleVoice()">
+            🎤 Nagraj głos
         </button>
         
-        <div class="speed-control">
-            <div class="speed-label">
-                <span>Prędkość animacji</span>
-                <span id="speedValue">0.6s</span>
+        <button class="btn btn-secondary" onclick="speakIt()">
+            🔊 Posłuchaj
+        </button>
+        
+        <div class="error-msg" id="errorMsg"></div>
+        
+        <div class="speed-section">
+            <div class="speed-header">
+                <span>Prędkość</span>
+                <span id="speedVal">0.6s</span>
             </div>
             <input type="range" class="speed-slider" id="speedSlider" min="200" max="1500" value="600" oninput="updateSpeed()">
         </div>
@@ -422,73 +287,171 @@
     </footer>
 
     <script>
-        const SIGNS = {
-            A:'✋',B:'👆',C:'🤟',D:'👇',E:'🤚',F:'✌️',
-            G:'👌',H:'🤙',I:'☝️',J:'☝️',K:'🤲',L:'🖐️',
-            M:'✊',N:'🤌',O:'👌',P:'🤜',Q:'🤏',R:'🤙',
-            S:'✋',T:'🤚',U:'🖐️',V:'✌️',W:'🤞',X:'🤞',
-            Y:'✋',Z:'🤟'
+        // Signs
+        var SIGNS = {
+            'A':'✋','B':'👆','C':'🤟','D':'👇','E':'🤚','F':'✌️',
+            'G':'👌','H':'🤙','I':'☝️','J':'☝️','K':'🤲','L':'🖐️',
+            'M':'✊','N':'🤌','O':'👌','P':'🤜','Q':'🤏','R':'🤙',
+            'S':'✋','T':'🤚','U':'🖐️','V':'✌️','W':'🤞','X':'🤞',
+            'Y':'✋','Z':'🤟'
         };
+        var LANG_NAMES = { 'pl-PL':'Polski','en-US':'English','de-DE':'Deutsch' };
         
-        const LANG_NAMES = { 'pl-PL': 'Polski', 'en-US': 'English', 'de-DE': 'Deutsch' };
+        // State
+        var currentLang = 'pl-PL';
+        var letters = [];
+        var currentIndex = 0;
+        var animTimer = null;
+        var speed = 600;
+        var recognition = null;
+        var isRecording = false;
         
-        let currentLang = 'pl-PL';
-        let letters = [];
-        let currentIndex = 0;
-        let animTimer = null;
-        let speed = 600;
+        // DOM refs
+        var placeholder = document.getElementById('placeholder');
+        var signArea = document.getElementById('signArea');
+        var signWord = document.getElementById('signWord');
+        var signLetter = document.getElementById('signLetter');
+        var signHand = document.getElementById('signHand');
+        var signLang = document.getElementById('signLang');
+        var progressFill = document.getElementById('progressFill');
+        var progressLabel = document.getElementById('progressLabel');
+        var textInput = document.getElementById('textInput');
+        var btnVoice = document.getElementById('btnVoice');
+        var errorMsg = document.getElementById('errorMsg');
+        var speedSlider = document.getElementById('speedSlider');
+        var speedVal = document.getElementById('speedVal');
         
-        const placeholder = document.getElementById('placeholder');
-        const signDisplay = document.getElementById('signDisplay');
-        const signWord = document.getElementById('signWord');
-        const signLetter = document.getElementById('signLetter');
-        const signHand = document.getElementById('signHand');
-        const signLang = document.getElementById('signLang');
-        const progressFill = document.getElementById('progressFill');
-        const progressText = document.getElementById('progressText');
-        const textInput = document.getElementById('textInput');
-        const speedSlider = document.getElementById('speedSlider');
-        const speedValue = document.getElementById('speedValue');
+        // Init speech recognition
+        try {
+            var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (SR) {
+                recognition = new SR();
+                recognition.lang = currentLang;
+                recognition.continuous = false;
+                recognition.interimResults = false;
+                
+                recognition.onresult = function(event) {
+                    var transcript = '';
+                    for (var i = 0; i < event.results.length; i++) {
+                        transcript += event.results[i][0].transcript;
+                    }
+                    textInput.value = transcript.toUpperCase();
+                    showSigns();
+                };
+                
+                recognition.onerror = function(event) {
+                    if (event.error !== 'no-speech') {
+                        showError('Błąd mikrofonu: ' + event.error);
+                    }
+                    stopRecording();
+                };
+                
+                recognition.onend = function() {
+                    stopRecording();
+                };
+            }
+        } catch(e) {
+            console.log('Speech recognition not available');
+        }
         
         function setLang(lang) {
             currentLang = lang;
-            document.querySelectorAll('.lang-tab').forEach(t => t.classList.remove('active'));
-            document.querySelector(`[data-lang="${lang}"]`).classList.add('active');
+            var tabs = document.querySelectorAll('.lang-tab');
+            for (var i = 0; i < tabs.length; i++) {
+                tabs[i].classList.remove('active');
+                if (tabs[i].getAttribute('data-lang') === lang) {
+                    tabs[i].classList.add('active');
+                }
+            }
+            if (recognition) recognition.lang = lang;
         }
         
-        function startAnimation(text) {
-            if (!text || text.trim() === '') return;
-            text = text.toUpperCase().replace(/[^A-Z]/g, '');
+        function showError(msg) {
+            errorMsg.textContent = msg;
+            errorMsg.classList.add('show');
+            setTimeout(function() { errorMsg.classList.remove('show'); }, 5000);
+        }
+        
+        function showSigns() {
+            var text = textInput.value;
+            if (!text || text.trim() === '') {
+                showError('Wpisz jakieś słowo!');
+                return;
+            }
+            
+            text = text.toUpperCase().replace(/[^A-ZĄĘŁŃÓŚŹŻ]/g, '');
+            if (text === '') {
+                showError('Używaj tylko liter A-Z');
+                return;
+            }
+            
             letters = text.split('');
-            if (letters.length === 0) return;
+            currentIndex = 0;
             
             placeholder.style.display = 'none';
-            signDisplay.classList.add('visible');
+            signArea.classList.add('visible');
             signWord.textContent = text;
             signLang.textContent = LANG_NAMES[currentLang] + ' → ✋ Migowy';
-            currentIndex = 0;
+            
             showLetter(0);
         }
         
         function showLetter(index) {
-            const letter = letters[index];
-            const sign = SIGNS[letter] || '❓';
+            if (index >= letters.length) return;
+            
+            var letter = letters[index];
+            var sign = SIGNS[letter] || '❓';
             
             signLetter.textContent = letter;
             signHand.textContent = sign;
-            progressText.textContent = (index + 1) + ' / ' + letters.length;
+            progressLabel.textContent = (index + 1) + ' / ' + letters.length;
             progressFill.style.width = (((index + 1) / letters.length) * 100) + '%';
             
             if (animTimer) clearTimeout(animTimer);
-            animTimer = setTimeout(() => {
-                if (index < letters.length - 1) showLetter(index + 1);
+            animTimer = setTimeout(function() {
+                showLetter(index + 1);
             }, speed);
         }
         
-        function speakText() {
-            const text = textInput.value.trim();
-            if (!text) return;
-            const utter = new SpeechSynthesisUtterance(text);
+        function toggleVoice() {
+            if (!recognition) {
+                showError('Mikrofon niedostępny w tej przeglądarce');
+                return;
+            }
+            
+            if (isRecording) {
+                stopRecording();
+            } else {
+                startRecording();
+            }
+        }
+        
+        function startRecording() {
+            try {
+                recognition.start();
+                isRecording = true;
+                btnVoice.classList.add('recording');
+                btnVoice.textContent = '⏹️ Zatrzymaj';
+                errorMsg.classList.remove('show');
+            } catch(e) {
+                showError('Nie można uruchomić mikrofonu');
+            }
+        }
+        
+        function stopRecording() {
+            try { recognition.stop(); } catch(e) {}
+            isRecording = false;
+            btnVoice.classList.remove('recording');
+            btnVoice.textContent = '🎤 Nagraj głos';
+        }
+        
+        function speakIt() {
+            var text = textInput.value;
+            if (!text) {
+                showError('Najpierw wpisz lub nagraj słowo');
+                return;
+            }
+            var utter = new SpeechSynthesisUtterance(text);
             utter.lang = currentLang;
             utter.rate = 0.9;
             speechSynthesis.speak(utter);
@@ -496,17 +459,19 @@
         
         function updateSpeed() {
             speed = parseInt(speedSlider.value);
-            speedValue.textContent = (speed / 1000).toFixed(1) + 's';
+            speedVal.textContent = (speed / 1000).toFixed(1) + 's';
         }
         
-        // Enter key support
-        textInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') startAnimation(textInput.value);
+        // Enter key
+        textInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                showSigns();
+            }
         });
         
         // Service Worker
         if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('sw.js').catch(() => {});
+            navigator.serviceWorker.register('sw.js').catch(function() {});
         }
     </script>
 </body>
